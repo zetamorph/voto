@@ -1,29 +1,82 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
-const sqlite = require ('sqlite3');
+const express = require('express'),
+      morgan = require('morgan'),
+      _ = require('underscore'),
+      sqlite = require ('sqlite3'),
+      Sequelize = require('sequelize'),
+      db = require('./db.js'),
+      cookieParser = require('cookie-parser'),
+      bodyParser = require('body-parser'),
+      uuid = require('uuid'),
+      methodOverride = require('method-override'),
+      session = require('express-session');
+      passport = require('passport'),
+      LocalStrategy = require('passport-local'),
+      GoogleStrategy = require('passport-google');
+
+const server = express();
+
+// setting up sequelize
+
+// Setting up express
+
+server.set('view engine', 'pug');
+server.set('views', __dirname + '/views');
+server.use(express.static(__dirname + '/public'));
+server.use(morgan('combined'));
+server.use(bodyParser.json());
+server.use(cookieParser());
+server.use(methodOverride('X-HTTP-Method-Override'));
+server.use(session({secret:"VierundZwanzigMalNeun", saveUninitialized: true, resave: true}));
+server.use(passport.initialize());
+server.use(passport.session());
+
+// Setting up passport 
+
+// The whole user object can be serialized and deserialized since the user objects for Voto are quite small
+
+passport.serializeUser((user,done) => {
+  done(null,user);
+});
+
+passport.deserializeUser((user,done) => {
+  done(null, obj);
+});
+
+// passport session persistence middleware
+
+server.use((req,res, next) => {
+  const err = req.session.error,
+        msg = req.session.notice,
+        success = req.session.success;
+  
+  delete req.session.error;
+  delete req.session.notice;
+  delete req.session.success;
+
+  if(err) res.locals.error = err;
+  if(msg) res.locals.notice = msg;
+  if(success) res.locals.success = success;
+
+  next();
+});
+
+// middleware for checking if user is authenticated
 
 
+// loading the DB
 
-// initialising the DB
 
-const db = new sqlite.Database(__dirname +'/data/voto.db');
-
-// to run a query: db.run()
-// create tables Users and Polls
 
 //configuring the server
 
-app.set('view engine', 'pug');
-app.set('views', __dirname + '/views');
-app.use(express.static(__dirname + '/public'));
+
 
 // setting up body-parser
-app.use(bodyParser.json());
+
 
 // GET /
 
-app.get('/', (req,res) => {
+server.get('/', (req,res) => {
   res.render('index.pug');
 });
 
@@ -31,12 +84,42 @@ app.get('/', (req,res) => {
 
 // Defining JSON API routes
 
-// view a user
+const apiRoutes = express.Router();
+
+// POST /users
+
+apiRoutes.post("/users", (req,res) => {
+  const body = _.pick(req.body, "email", "password");
+
+  db.user.create(body).then((user) => {
+    res.json(user.toJSON()).end;
+  }, (err) => {
+    res.status(400).json(err).end;
+  });
+});
+
+// POST /polls
+
+apiRoutes.post("/polls", (req,res) => {
+  const body = _.pick(req.body, "title", "description");
+
+  db.poll.create(body).then((poll) => {
+    res.json(poll.toJSON()).end;
+  }, (err) => {
+    res.status(400).json(err).end;
+  });
+});
+
+
+
+
+
+
 
 
 // GET /polls
-
-app.get('/polls', (req,res) => {
+/*
+apiRoutes.get('/polls', (req,res) => {
   db.serialize(() => {
     db.all("SELECT * FROM POLLS", (err, rows) => {
       res.end(JSON.stringify(rows));
@@ -46,7 +129,7 @@ app.get('/polls', (req,res) => {
 
 // GET /polls/:id
 
-app.get('/polls/:id', (req, res) => {
+apiRoutes.get('/polls/:id', (req, res) => {
   db.serialize(() => {
     db.all("SELECT * FROM POLLS WHERE poll_id = ?", req.params.id, (err, row) => {
       if(err) throw err;
@@ -57,7 +140,7 @@ app.get('/polls/:id', (req, res) => {
 
 // GET /users
 
-app.get('/users', (req, res) => {
+apiRoutes.get('/users', (req, res) => {
   db.serialize(() => {
     db.all("SELECT * FROM USERS", (err, rows) => {
       res.json(rows);
@@ -67,7 +150,7 @@ app.get('/users', (req, res) => {
 
 // POST /polls
 
-app.post('/polls', (req, res) => {
+apiRoutes.post('/polls', (req, res) => {
   const userId = req.body.userId;
   const title = req.body.title;
   const desc = req.body.description;
@@ -80,7 +163,7 @@ app.post('/polls', (req, res) => {
 
 // DELETE /polls
 
-app.delete('/polls/:id', (req,res) => {
+apiRoutes.delete('/polls/:id', (req,res) => {
   db.serialize(() => {
     db.run("DELETE FROM POLLS WHERE poll_id = ?", req.params.id, (err) => {
       if(err) throw err;
@@ -90,7 +173,7 @@ app.delete('/polls/:id', (req,res) => {
 
 // GET /polls/:id/votes
 
-app.get('/polls/:id/votes', (req,res) => {
+apiRoutes.get('/polls/:id/votes', (req,res) => {
   db.serialize(() => {
     db.all("SELECT o.title, COUNT(o.title) AS votes FROM votes v JOIN options o JOIN polls p ON v.option_id = o.option_id AND o.poll_id = p.poll_id WHERE p.poll_id = ? GROUP BY o.title", req.params.id, (err, rows) => {
       res.json(rows);
@@ -100,7 +183,7 @@ app.get('/polls/:id/votes', (req,res) => {
 
 // POST polls/:id/votes
 
-app.post('/polls/:id/votes', (req,res) => {
+apiRoutes.post('/polls/:id/votes', (req,res) => {
   const userId = req.body.userId;
   const optionId = req.body.optionId;
   const pollId = req.params.id;
@@ -114,7 +197,7 @@ app.post('/polls/:id/votes', (req,res) => {
 
 // POST /polls/:id/options
 
-app.post('/polls/:id/options', (req,res) => {
+apiRoutes.post('/polls/:id/options', (req,res) => {
   const pollId = req.params.id;
   const userId = req.body.userId;
   const title = req.body.title;
@@ -129,10 +212,18 @@ app.post('/polls/:id/options', (req,res) => {
     });
   });
 });
+*/
+server.use("/api", apiRoutes);
 
-app.listen(8000, () => {
+// force:true forces the creation of a new DB, turn off for production
+
+db.sequelize.sync({force: true}).then(() => {
+  server.listen(8000, () => {
   console.log("Voto Server is running on port 8000");
+  });
 });
+
+
 
 
 
