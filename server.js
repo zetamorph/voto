@@ -92,7 +92,7 @@ apiRoutes.post("/users", (req,res) => {
   const body = _.pick(req.body, "email", "password");
 
   db.user.create(body).then((user) => {
-    res.json(user.toJSON()).end;
+    res.json(user.toPublicJSON()).end;
   }, (err) => {
     res.status(400).json(err).end;
   });
