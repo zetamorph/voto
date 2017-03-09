@@ -44,40 +44,14 @@ passport.deserializeUser((user,done) => {
 
 // passport session persistence middleware
 
-server.use((req,res, next) => {
-  const err = req.session.error,
-        msg = req.session.notice,
-        success = req.session.success;
-  
-  delete req.session.error;
-  delete req.session.notice;
-  delete req.session.success;
-
-  if(err) res.locals.error = err;
-  if(msg) res.locals.notice = msg;
-  if(success) res.locals.success = success;
-
-  next();
-});
-
 // middleware for checking if user is authenticated
 
-
-// loading the DB
-
-
-
 //configuring the server
-
-
-
-// setting up body-parser
-
 
 // GET /
 
 server.get('/', (req,res) => {
-  res.render('index.pug');
+  res.render('login.pug');
 });
 
 
@@ -86,15 +60,11 @@ server.get('/', (req,res) => {
 
 const apiRoutes = express.Router();
 
-// POST /users
+// GET /polls
 
-apiRoutes.post("/users", (req,res) => {
-  const body = _.pick(req.body, "email", "password");
-
-  db.user.create(body).then((user) => {
-    res.json(user.toPublicJSON()).end;
-  }, (err) => {
-    res.status(400).json(err).end;
+apiRoutes.get("/polls", (req,res) => {
+  db.poll.findAll().then((polls) => {
+    res.status(200).json(polls).end;
   });
 });
 
@@ -109,6 +79,20 @@ apiRoutes.post("/polls", (req,res) => {
     res.status(400).json(err).end;
   });
 });
+
+// POST /users
+
+apiRoutes.post("/users", (req,res) => {
+  const body = _.pick(req.body, "email", "password");
+
+  db.user.create(body).then((user) => {
+    res.json(user.toPublicJSON()).end;
+  }, (err) => {
+    res.status(400).json(err).end;
+  });
+});
+
+
 
 
 
@@ -217,7 +201,7 @@ server.use("/api", apiRoutes);
 
 // force:true forces the creation of a new DB, turn off for production
 
-db.sequelize.sync({force: true}).then(() => {
+db.sequelize.sync().then(() => {
   server.listen(8000, () => {
   console.log("Voto Server is running on port 8000");
   });
