@@ -4,6 +4,7 @@ const express = require('express'),
       sqlite = require ('sqlite3'),
       Sequelize = require('sequelize'),
       db = require('./db.js'),
+      bcrypt = require('bcrypt'),
       cookieParser = require('cookie-parser'),
       bodyParser = require('body-parser'),
       uuid = require('uuid'),
@@ -80,9 +81,13 @@ apiRoutes.post("/polls", (req,res) => {
   });
 });
 
-// POST /users
+// defining auth Routes
 
-apiRoutes.post("/users", (req,res) => {
+const authRoutes = express.Router();
+
+// POST auth/signup
+
+authRoutes.post("/register", (req,res) => {
   const body = _.pick(req.body, "email", "password");
 
   db.user.create(body).then((user) => {
@@ -92,6 +97,21 @@ apiRoutes.post("/users", (req,res) => {
   });
 });
 
+// POST auth/login
+
+authRoutes.post("/login", (req,res) => {
+  const body = _.pick(req.body, "email", "password");
+
+  db.user.authenticate(body).then((user) => {
+    res.json(user.toPublicJSON()).end();
+  }, (err) => {
+    res.status(401).end();
+  });
+
+  //basic input validation?
+
+  
+});
 
 
 
@@ -198,6 +218,7 @@ apiRoutes.post('/polls/:id/options', (req,res) => {
 });
 */
 server.use("/api", apiRoutes);
+server.use("/auth", authRoutes);
 
 // force:true forces the creation of a new DB, turn off for production
 
