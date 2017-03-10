@@ -103,7 +103,7 @@ authRoutes.post("/login", (req,res) => {
   const body = _.pick(req.body, "email", "password");
 
   db.user.authenticate(body).then((user) => {
-    res.json(user.toPublicJSON()).end();
+    res.header("Auth", user.generateToken("authentication")).json(user.toPublicJSON()).end();
   }, (err) => {
     res.status(401).end();
   });
