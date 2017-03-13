@@ -17,6 +17,7 @@ server.set("views", __dirname + "/views");
 server.use(express.static(__dirname + "/public"));
 server.use(morgan("combined"));
 server.use(bodyParser.json());
+server.set('trust proxy');
 
 // GET /
 
@@ -33,27 +34,6 @@ server.get("/polls", (req,res) => {
   });
 });
 
-// GET /users/:id/polls
-// See all polls a user has created
-
-server.get("/users/:id/polls", (req,res) => {
-  db.poll.findAll({
-    where: {
-      userId: req.params.id
-    }}).then((polls) => {
-      if(polls.length) { 
-        res.status(200).json(polls).end();
-      }
-      else {
-        res.status(404).end();
-      }
-    }, (err) => {
-      res.status(404).end();
-    });
-});
-
-
-  
 // POST /polls
 // For creating a new poll
 
@@ -68,6 +48,37 @@ server.post("/polls", middleware.requireAuth, (req,res) => {
     });
   }, (err) => {
     res.status(400).json(err).end();
+  });
+});
+
+// GET /polls/:id
+// For retrieving a single poll, it`s options and votes cast for each option
+
+server.get("/polls/:id", (req,res) => {
+
+  const pollId = req.params.id;
+
+  db.poll.find({
+    group: ["options.id"],
+    where: {
+      id: pollId
+    },
+    attributes: ["title", "description", "createdAt"],
+    include:
+      [{model: db.option,
+        attributes: [
+          "title", [db.sequelize.fn('COUNT', "options.votes.id"), "voteCount"]
+        ],
+        include: [{
+          order: ["voteCount", "DESC"],
+          model: db.vote,
+          attributes: []
+        }]
+      }]
+  }).then((poll) => {
+    res.status(200).json(poll).end();
+  }, (err) => {
+    res.status(404).json(err).end();
   });
 });
 
@@ -101,10 +112,11 @@ server.delete("/polls/:id", middleware.requireAuth, (req,res) => {
 });
 
 // GET /polls/:id/options
-// For retrieving all available options for a specific poll
+// For retrieving all available options for a specific poll and the number of votes cast for each option
 
 server.get("/polls/:id/options", (req,res) => {
   const pollId = parseInt(req.params.id, 10);
+
   db.option.findAll({
     where: {
       pollId: pollId
@@ -112,8 +124,29 @@ server.get("/polls/:id/options", (req,res) => {
   }).then((options) => {
     res.status(200).json(options).end();
   }).catch((err) => {
-    res.status(404).send(err.toString()).end();
+    res.status(404).json(err).end();
   });
+});
+
+// GET /polls/:id/options/votes
+// For retrieving the number of votes for each option of a specific poll
+
+server.get("/polls/:id/votes", (req,res) => {
+
+  const pollId = parseInt(req.params.id, 10);
+
+  db.option.count({
+    attributes: ["title"],
+    where: {
+      pollId: pollId
+    }, 
+    include: [db.vote],
+    group: ["title"]
+  }).then((optionVotes) => {
+    res.status(200).json(optionVotes).end;
+  }, (err) => {
+    res.status(404).json(err).end();
+  }); 
 });
 
 // POST /polls/:id/options
@@ -137,6 +170,24 @@ server.post("/polls/:id/options", middleware.requireAuth, (req,res) => {
     }).catch(() => {
       res.status(500).json(err).end();
     });
+  });
+});
+
+// POST /polls/:pollId/options/:OptionId/
+// For voting on an option
+
+server.post("/polls/:pollId/options/:optionId", middleware.requireAuth, (req,res) => {
+
+  const voteData = {
+    optionId: req.params.optionId,
+    userId: req.user.id,
+    ip: req.ip
+  };
+
+  db.vote.create(voteData).then((vote) => {
+    res.json(vote.toJSON()).end;
+  }, (err) => {
+    res.status(400).json(err).end;
   });
 });
 
@@ -182,6 +233,25 @@ server.delete("/users/login", middleware.requireAuth, (req,res) => {
   }).catch(() => {
     res.status(500).end();
   });
+});
+
+// GET /users/:id/polls
+// See all polls a user has created
+
+server.get("/users/:id/polls", (req,res) => {
+  db.poll.findAll({
+    where: {
+      userId: req.params.id
+    }}).then((polls) => {
+      if(polls.length) { 
+        res.status(200).json(polls).end();
+      }
+      else {
+        res.status(404).end();
+      }
+    }, (err) => {
+      res.status(404).end();
+    });
 });
 
 db.sequelize.sync({

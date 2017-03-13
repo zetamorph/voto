@@ -3,7 +3,9 @@
 
 <template>
   <ul>
-    <li v-for="poll in polls"> {{poll.title}} </li>
+    <li v-for="poll in polls"> 
+      <p> {{poll.title}} </p>
+    </li>
   </ul>
 </template>
 
@@ -14,11 +16,13 @@
   export default {
     name: 'PollViewer',
     data: () => ({
-      polls: []
+      poll: []
     }),
     beforeMount () {
-      axios.get("/polls").then(({data: pollData}) => {
-        this.polls = pollData;
+      axios.all(
+        ["/polls/1/options/votes",
+         "/polls/1"]).then(({data: votes}, {data: poll}) => {
+        this.poll = pollData;
       });
     }
   };
