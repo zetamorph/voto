@@ -21,7 +21,7 @@ server.use(bodyParser.json());
 // GET /
 
 server.get("/", (req,res) => {
-  res.render("index.pug");
+  res.render("dashboard");
 });
 
 // GET /polls
