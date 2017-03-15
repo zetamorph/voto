@@ -5095,7 +5095,7 @@ Polling.prototype.uri = function () {
 
 }).apply(this, arguments);
 
-},{"../transport":44,"component-inherit":38,"debug":52,"engine.io-parser":55,"parseqs":210,"xmlhttprequest-ssl":50,"yeast":230}],49:[function(require,module,exports){
+},{"../transport":44,"component-inherit":38,"debug":52,"engine.io-parser":55,"parseqs":210,"xmlhttprequest-ssl":50,"yeast":231}],49:[function(require,module,exports){
 _hmr["websocket:null"].initModule("node_modules\\engine.io-client\\lib\\transports\\websocket.js", module);
 (function(){
 (function (global){
@@ -5388,7 +5388,7 @@ WS.prototype.check = function () {
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 }).apply(this, arguments);
 
-},{"../transport":44,"component-inherit":38,"debug":52,"engine.io-parser":55,"parseqs":210,"ws":32,"yeast":230}],50:[function(require,module,exports){
+},{"../transport":44,"component-inherit":38,"debug":52,"engine.io-parser":55,"parseqs":210,"ws":32,"yeast":231}],50:[function(require,module,exports){
 _hmr["websocket:null"].initModule("node_modules\\engine.io-client\\lib\\xmlhttprequest.js", module);
 (function(){
 (function (global){
@@ -6765,7 +6765,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 }).apply(this, arguments);
 
-},{"./keys":56,"after":2,"arraybuffer.slice":3,"base64-arraybuffer":30,"blob":31,"has-binary":57,"wtf-8":229}],56:[function(require,module,exports){
+},{"./keys":56,"after":2,"arraybuffer.slice":3,"base64-arraybuffer":30,"blob":31,"has-binary":57,"wtf-8":230}],56:[function(require,module,exports){
 _hmr["websocket:null"].initModule("node_modules\\engine.io-parser\\lib\\keys.js", module);
 (function(){
 
@@ -15742,6 +15742,2292 @@ exports.reload = tryWrap(function (id, options) {
 }).apply(this, arguments);
 
 },{}],228:[function(require,module,exports){
+_hmr["websocket:null"].initModule("node_modules\\vue-router\\dist\\vue-router.common.js", module);
+(function(){
+(function (process){
+/**
+  * vue-router v2.2.1
+  * (c) 2017 Evan You
+  * @license MIT
+  */
+'use strict';
+
+/*  */
+
+function assert (condition, message) {
+  if (!condition) {
+    throw new Error(("[vue-router] " + message))
+  }
+}
+
+function warn (condition, message) {
+  if (!condition) {
+    typeof console !== 'undefined' && console.warn(("[vue-router] " + message));
+  }
+}
+
+var View = {
+  name: 'router-view',
+  functional: true,
+  props: {
+    name: {
+      type: String,
+      default: 'default'
+    }
+  },
+  render: function render (h, ref) {
+    var props = ref.props;
+    var children = ref.children;
+    var parent = ref.parent;
+    var data = ref.data;
+
+    data.routerView = true;
+
+    var name = props.name;
+    var route = parent.$route;
+    var cache = parent._routerViewCache || (parent._routerViewCache = {});
+
+    // determine current view depth, also check to see if the tree
+    // has been toggled inactive but kept-alive.
+    var depth = 0;
+    var inactive = false;
+    while (parent) {
+      if (parent.$vnode && parent.$vnode.data.routerView) {
+        depth++;
+      }
+      if (parent._inactive) {
+        inactive = true;
+      }
+      parent = parent.$parent;
+    }
+    data.routerViewDepth = depth;
+
+    // render previous view if the tree is inactive and kept-alive
+    if (inactive) {
+      return h(cache[name], data, children)
+    }
+
+    var matched = route.matched[depth];
+    // render empty node if no matched route
+    if (!matched) {
+      cache[name] = null;
+      return h()
+    }
+
+    var component = cache[name] = matched.components[name];
+
+    // inject instance registration hooks
+    var hooks = data.hook || (data.hook = {});
+    hooks.init = function (vnode) {
+      matched.instances[name] = vnode.child;
+    };
+    hooks.prepatch = function (oldVnode, vnode) {
+      matched.instances[name] = vnode.child;
+    };
+    hooks.destroy = function (vnode) {
+      if (matched.instances[name] === vnode.child) {
+        matched.instances[name] = undefined;
+      }
+    };
+
+    // resolve props
+    data.props = resolveProps(route, matched.props && matched.props[name]);
+
+    return h(component, data, children)
+  }
+};
+
+function resolveProps (route, config) {
+  switch (typeof config) {
+    case 'undefined':
+      return
+    case 'object':
+      return config
+    case 'function':
+      return config(route)
+    case 'boolean':
+      return config ? route.params : undefined
+    default:
+      warn(false, ("props in \"" + (route.path) + "\" is a " + (typeof config) + ", expecting an object, function or boolean."));
+  }
+}
+
+/*  */
+
+var encodeReserveRE = /[!'()*]/g;
+var encodeReserveReplacer = function (c) { return '%' + c.charCodeAt(0).toString(16); };
+var commaRE = /%2C/g;
+
+// fixed encodeURIComponent which is more comformant to RFC3986:
+// - escapes [!'()*]
+// - preserve commas
+var encode = function (str) { return encodeURIComponent(str)
+  .replace(encodeReserveRE, encodeReserveReplacer)
+  .replace(commaRE, ','); };
+
+var decode = decodeURIComponent;
+
+function resolveQuery (
+  query,
+  extraQuery
+) {
+  if ( extraQuery === void 0 ) extraQuery = {};
+
+  if (query) {
+    var parsedQuery;
+    try {
+      parsedQuery = parseQuery(query);
+    } catch (e) {
+      process.env.NODE_ENV !== 'production' && warn(false, e.message);
+      parsedQuery = {};
+    }
+    for (var key in extraQuery) {
+      parsedQuery[key] = extraQuery[key];
+    }
+    return parsedQuery
+  } else {
+    return extraQuery
+  }
+}
+
+function parseQuery (query) {
+  var res = {};
+
+  query = query.trim().replace(/^(\?|#|&)/, '');
+
+  if (!query) {
+    return res
+  }
+
+  query.split('&').forEach(function (param) {
+    var parts = param.replace(/\+/g, ' ').split('=');
+    var key = decode(parts.shift());
+    var val = parts.length > 0
+      ? decode(parts.join('='))
+      : null;
+
+    if (res[key] === undefined) {
+      res[key] = val;
+    } else if (Array.isArray(res[key])) {
+      res[key].push(val);
+    } else {
+      res[key] = [res[key], val];
+    }
+  });
+
+  return res
+}
+
+function stringifyQuery (obj) {
+  var res = obj ? Object.keys(obj).map(function (key) {
+    var val = obj[key];
+
+    if (val === undefined) {
+      return ''
+    }
+
+    if (val === null) {
+      return encode(key)
+    }
+
+    if (Array.isArray(val)) {
+      var result = [];
+      val.slice().forEach(function (val2) {
+        if (val2 === undefined) {
+          return
+        }
+        if (val2 === null) {
+          result.push(encode(key));
+        } else {
+          result.push(encode(key) + '=' + encode(val2));
+        }
+      });
+      return result.join('&')
+    }
+
+    return encode(key) + '=' + encode(val)
+  }).filter(function (x) { return x.length > 0; }).join('&') : null;
+  return res ? ("?" + res) : ''
+}
+
+/*  */
+
+var trailingSlashRE = /\/?$/;
+
+function createRoute (
+  record,
+  location,
+  redirectedFrom
+) {
+  var route = {
+    name: location.name || (record && record.name),
+    meta: (record && record.meta) || {},
+    path: location.path || '/',
+    hash: location.hash || '',
+    query: location.query || {},
+    params: location.params || {},
+    fullPath: getFullPath(location),
+    matched: record ? formatMatch(record) : []
+  };
+  if (redirectedFrom) {
+    route.redirectedFrom = getFullPath(redirectedFrom);
+  }
+  return Object.freeze(route)
+}
+
+// the starting route that represents the initial state
+var START = createRoute(null, {
+  path: '/'
+});
+
+function formatMatch (record) {
+  var res = [];
+  while (record) {
+    res.unshift(record);
+    record = record.parent;
+  }
+  return res
+}
+
+function getFullPath (ref) {
+  var path = ref.path;
+  var query = ref.query; if ( query === void 0 ) query = {};
+  var hash = ref.hash; if ( hash === void 0 ) hash = '';
+
+  return (path || '/') + stringifyQuery(query) + hash
+}
+
+function isSameRoute (a, b) {
+  if (b === START) {
+    return a === b
+  } else if (!b) {
+    return false
+  } else if (a.path && b.path) {
+    return (
+      a.path.replace(trailingSlashRE, '') === b.path.replace(trailingSlashRE, '') &&
+      a.hash === b.hash &&
+      isObjectEqual(a.query, b.query)
+    )
+  } else if (a.name && b.name) {
+    return (
+      a.name === b.name &&
+      a.hash === b.hash &&
+      isObjectEqual(a.query, b.query) &&
+      isObjectEqual(a.params, b.params)
+    )
+  } else {
+    return false
+  }
+}
+
+function isObjectEqual (a, b) {
+  if ( a === void 0 ) a = {};
+  if ( b === void 0 ) b = {};
+
+  var aKeys = Object.keys(a);
+  var bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) {
+    return false
+  }
+  return aKeys.every(function (key) { return String(a[key]) === String(b[key]); })
+}
+
+function isIncludedRoute (current, target) {
+  return (
+    current.path.replace(trailingSlashRE, '/').indexOf(
+      target.path.replace(trailingSlashRE, '/')
+    ) === 0 &&
+    (!target.hash || current.hash === target.hash) &&
+    queryIncludes(current.query, target.query)
+  )
+}
+
+function queryIncludes (current, target) {
+  for (var key in target) {
+    if (!(key in current)) {
+      return false
+    }
+  }
+  return true
+}
+
+/*  */
+
+// work around weird flow bug
+var toTypes = [String, Object];
+var eventTypes = [String, Array];
+
+var Link = {
+  name: 'router-link',
+  props: {
+    to: {
+      type: toTypes,
+      required: true
+    },
+    tag: {
+      type: String,
+      default: 'a'
+    },
+    exact: Boolean,
+    append: Boolean,
+    replace: Boolean,
+    activeClass: String,
+    event: {
+      type: eventTypes,
+      default: 'click'
+    }
+  },
+  render: function render (h) {
+    var this$1 = this;
+
+    var router = this.$router;
+    var current = this.$route;
+    var ref = router.resolve(this.to, current, this.append);
+    var location = ref.location;
+    var route = ref.route;
+    var href = ref.href;
+    var classes = {};
+    var activeClass = this.activeClass || router.options.linkActiveClass || 'router-link-active';
+    var compareTarget = location.path ? createRoute(null, location) : route;
+    classes[activeClass] = this.exact
+      ? isSameRoute(current, compareTarget)
+      : isIncludedRoute(current, compareTarget);
+
+    var handler = function (e) {
+      if (guardEvent(e)) {
+        if (this$1.replace) {
+          router.replace(location);
+        } else {
+          router.push(location);
+        }
+      }
+    };
+
+    var on = { click: guardEvent };
+    if (Array.isArray(this.event)) {
+      this.event.forEach(function (e) { on[e] = handler; });
+    } else {
+      on[this.event] = handler;
+    }
+
+    var data = {
+      class: classes
+    };
+
+    if (this.tag === 'a') {
+      data.on = on;
+      data.attrs = { href: href };
+    } else {
+      // find the first <a> child and apply listener and href
+      var a = findAnchor(this.$slots.default);
+      if (a) {
+        // in case the <a> is a static node
+        a.isStatic = false;
+        var extend = _Vue.util.extend;
+        var aData = a.data = extend({}, a.data);
+        aData.on = on;
+        var aAttrs = a.data.attrs = extend({}, a.data.attrs);
+        aAttrs.href = href;
+      } else {
+        // doesn't have <a> child, apply listener to self
+        data.on = on;
+      }
+    }
+
+    return h(this.tag, data, this.$slots.default)
+  }
+};
+
+function guardEvent (e) {
+  // don't redirect with control keys
+  if (e.metaKey || e.ctrlKey || e.shiftKey) { return }
+  // don't redirect when preventDefault called
+  if (e.defaultPrevented) { return }
+  // don't redirect on right click
+  if (e.button !== undefined && e.button !== 0) { return }
+  // don't redirect if `target="_blank"`
+  if (e.target && e.target.getAttribute) {
+    var target = e.target.getAttribute('target');
+    if (/\b_blank\b/i.test(target)) { return }
+  }
+  // this may be a Weex event which doesn't have this method
+  if (e.preventDefault) {
+    e.preventDefault();
+  }
+  return true
+}
+
+function findAnchor (children) {
+  if (children) {
+    var child;
+    for (var i = 0; i < children.length; i++) {
+      child = children[i];
+      if (child.tag === 'a') {
+        return child
+      }
+      if (child.children && (child = findAnchor(child.children))) {
+        return child
+      }
+    }
+  }
+}
+
+var _Vue;
+
+function install (Vue) {
+  if (install.installed) { return }
+  install.installed = true;
+
+  _Vue = Vue;
+
+  Object.defineProperty(Vue.prototype, '$router', {
+    get: function get () { return this.$root._router }
+  });
+
+  Object.defineProperty(Vue.prototype, '$route', {
+    get: function get () { return this.$root._route }
+  });
+
+  Vue.mixin({
+    beforeCreate: function beforeCreate () {
+      if (this.$options.router) {
+        this._router = this.$options.router;
+        this._router.init(this);
+        Vue.util.defineReactive(this, '_route', this._router.history.current);
+      }
+    }
+  });
+
+  Vue.component('router-view', View);
+  Vue.component('router-link', Link);
+
+  var strats = Vue.config.optionMergeStrategies;
+  // use the same hook merging strategy for route hooks
+  strats.beforeRouteEnter = strats.beforeRouteLeave = strats.created;
+}
+
+/*  */
+
+var inBrowser = typeof window !== 'undefined';
+
+/*  */
+
+function resolvePath (
+  relative,
+  base,
+  append
+) {
+  if (relative.charAt(0) === '/') {
+    return relative
+  }
+
+  if (relative.charAt(0) === '?' || relative.charAt(0) === '#') {
+    return base + relative
+  }
+
+  var stack = base.split('/');
+
+  // remove trailing segment if:
+  // - not appending
+  // - appending to trailing slash (last segment is empty)
+  if (!append || !stack[stack.length - 1]) {
+    stack.pop();
+  }
+
+  // resolve relative path
+  var segments = relative.replace(/^\//, '').split('/');
+  for (var i = 0; i < segments.length; i++) {
+    var segment = segments[i];
+    if (segment === '.') {
+      continue
+    } else if (segment === '..') {
+      stack.pop();
+    } else {
+      stack.push(segment);
+    }
+  }
+
+  // ensure leading slash
+  if (stack[0] !== '') {
+    stack.unshift('');
+  }
+
+  return stack.join('/')
+}
+
+function parsePath (path) {
+  var hash = '';
+  var query = '';
+
+  var hashIndex = path.indexOf('#');
+  if (hashIndex >= 0) {
+    hash = path.slice(hashIndex);
+    path = path.slice(0, hashIndex);
+  }
+
+  var queryIndex = path.indexOf('?');
+  if (queryIndex >= 0) {
+    query = path.slice(queryIndex + 1);
+    path = path.slice(0, queryIndex);
+  }
+
+  return {
+    path: path,
+    query: query,
+    hash: hash
+  }
+}
+
+function cleanPath (path) {
+  return path.replace(/\/\//g, '/')
+}
+
+/*  */
+
+function createRouteMap (
+  routes,
+  oldPathMap,
+  oldNameMap
+) {
+  var pathMap = oldPathMap || Object.create(null);
+  var nameMap = oldNameMap || Object.create(null);
+
+  routes.forEach(function (route) {
+    addRouteRecord(pathMap, nameMap, route);
+  });
+
+  return {
+    pathMap: pathMap,
+    nameMap: nameMap
+  }
+}
+
+function addRouteRecord (
+  pathMap,
+  nameMap,
+  route,
+  parent,
+  matchAs
+) {
+  var path = route.path;
+  var name = route.name;
+  if (process.env.NODE_ENV !== 'production') {
+    assert(path != null, "\"path\" is required in a route configuration.");
+    assert(
+      typeof route.component !== 'string',
+      "route config \"component\" for path: " + (String(path || name)) + " cannot be a " +
+      "string id. Use an actual component instead."
+    );
+  }
+
+  var record = {
+    path: normalizePath(path, parent),
+    components: route.components || { default: route.component },
+    instances: {},
+    name: name,
+    parent: parent,
+    matchAs: matchAs,
+    redirect: route.redirect,
+    beforeEnter: route.beforeEnter,
+    meta: route.meta || {},
+    props: route.props == null
+      ? {}
+      : route.components
+        ? route.props
+        : { default: route.props }
+  };
+
+  if (route.children) {
+    // Warn if route is named and has a default child route.
+    // If users navigate to this route by name, the default child will
+    // not be rendered (GH Issue #629)
+    if (process.env.NODE_ENV !== 'production') {
+      if (route.name && route.children.some(function (child) { return /^\/?$/.test(child.path); })) {
+        warn(
+          false,
+          "Named Route '" + (route.name) + "' has a default child route. " +
+          "When navigating to this named route (:to=\"{name: '" + (route.name) + "'\"), " +
+          "the default child route will not be rendered. Remove the name from " +
+          "this route and use the name of the default child route for named " +
+          "links instead."
+        );
+      }
+    }
+    route.children.forEach(function (child) {
+      var childMatchAs = matchAs
+        ? cleanPath((matchAs + "/" + (child.path)))
+        : undefined;
+      addRouteRecord(pathMap, nameMap, child, record, childMatchAs);
+    });
+  }
+
+  if (route.alias !== undefined) {
+    if (Array.isArray(route.alias)) {
+      route.alias.forEach(function (alias) {
+        var aliasRoute = {
+          path: alias,
+          children: route.children
+        };
+        addRouteRecord(pathMap, nameMap, aliasRoute, parent, record.path);
+      });
+    } else {
+      var aliasRoute = {
+        path: route.alias,
+        children: route.children
+      };
+      addRouteRecord(pathMap, nameMap, aliasRoute, parent, record.path);
+    }
+  }
+
+  if (!pathMap[record.path]) {
+    pathMap[record.path] = record;
+  }
+
+  if (name) {
+    if (!nameMap[name]) {
+      nameMap[name] = record;
+    } else if (process.env.NODE_ENV !== 'production' && !matchAs) {
+      warn(
+        false,
+        "Duplicate named routes definition: " +
+        "{ name: \"" + name + "\", path: \"" + (record.path) + "\" }"
+      );
+    }
+  }
+}
+
+function normalizePath (path, parent) {
+  path = path.replace(/\/$/, '');
+  if (path[0] === '/') { return path }
+  if (parent == null) { return path }
+  return cleanPath(((parent.path) + "/" + path))
+}
+
+var index$1 = Array.isArray || function (arr) {
+  return Object.prototype.toString.call(arr) == '[object Array]';
+};
+
+var isarray = index$1;
+
+/**
+ * Expose `pathToRegexp`.
+ */
+var index = pathToRegexp;
+var parse_1 = parse;
+var compile_1 = compile;
+var tokensToFunction_1 = tokensToFunction;
+var tokensToRegExp_1 = tokensToRegExp;
+
+/**
+ * The main path matching regexp utility.
+ *
+ * @type {RegExp}
+ */
+var PATH_REGEXP = new RegExp([
+  // Match escaped characters that would otherwise appear in future matches.
+  // This allows the user to escape special characters that won't transform.
+  '(\\\\.)',
+  // Match Express-style parameters and un-named parameters with a prefix
+  // and optional suffixes. Matches appear as:
+  //
+  // "/:test(\\d+)?" => ["/", "test", "\d+", undefined, "?", undefined]
+  // "/route(\\d+)"  => [undefined, undefined, undefined, "\d+", undefined, undefined]
+  // "/*"            => ["/", undefined, undefined, undefined, undefined, "*"]
+  '([\\/.])?(?:(?:\\:(\\w+)(?:\\(((?:\\\\.|[^\\\\()])+)\\))?|\\(((?:\\\\.|[^\\\\()])+)\\))([+*?])?|(\\*))'
+].join('|'), 'g');
+
+/**
+ * Parse a string for the raw tokens.
+ *
+ * @param  {string}  str
+ * @param  {Object=} options
+ * @return {!Array}
+ */
+function parse (str, options) {
+  var tokens = [];
+  var key = 0;
+  var index = 0;
+  var path = '';
+  var defaultDelimiter = options && options.delimiter || '/';
+  var res;
+
+  while ((res = PATH_REGEXP.exec(str)) != null) {
+    var m = res[0];
+    var escaped = res[1];
+    var offset = res.index;
+    path += str.slice(index, offset);
+    index = offset + m.length;
+
+    // Ignore already escaped sequences.
+    if (escaped) {
+      path += escaped[1];
+      continue
+    }
+
+    var next = str[index];
+    var prefix = res[2];
+    var name = res[3];
+    var capture = res[4];
+    var group = res[5];
+    var modifier = res[6];
+    var asterisk = res[7];
+
+    // Push the current path onto the tokens.
+    if (path) {
+      tokens.push(path);
+      path = '';
+    }
+
+    var partial = prefix != null && next != null && next !== prefix;
+    var repeat = modifier === '+' || modifier === '*';
+    var optional = modifier === '?' || modifier === '*';
+    var delimiter = res[2] || defaultDelimiter;
+    var pattern = capture || group;
+
+    tokens.push({
+      name: name || key++,
+      prefix: prefix || '',
+      delimiter: delimiter,
+      optional: optional,
+      repeat: repeat,
+      partial: partial,
+      asterisk: !!asterisk,
+      pattern: pattern ? escapeGroup(pattern) : (asterisk ? '.*' : '[^' + escapeString(delimiter) + ']+?')
+    });
+  }
+
+  // Match any characters still remaining.
+  if (index < str.length) {
+    path += str.substr(index);
+  }
+
+  // If the path exists, push it onto the end.
+  if (path) {
+    tokens.push(path);
+  }
+
+  return tokens
+}
+
+/**
+ * Compile a string to a template function for the path.
+ *
+ * @param  {string}             str
+ * @param  {Object=}            options
+ * @return {!function(Object=, Object=)}
+ */
+function compile (str, options) {
+  return tokensToFunction(parse(str, options))
+}
+
+/**
+ * Prettier encoding of URI path segments.
+ *
+ * @param  {string}
+ * @return {string}
+ */
+function encodeURIComponentPretty (str) {
+  return encodeURI(str).replace(/[\/?#]/g, function (c) {
+    return '%' + c.charCodeAt(0).toString(16).toUpperCase()
+  })
+}
+
+/**
+ * Encode the asterisk parameter. Similar to `pretty`, but allows slashes.
+ *
+ * @param  {string}
+ * @return {string}
+ */
+function encodeAsterisk (str) {
+  return encodeURI(str).replace(/[?#]/g, function (c) {
+    return '%' + c.charCodeAt(0).toString(16).toUpperCase()
+  })
+}
+
+/**
+ * Expose a method for transforming tokens into the path function.
+ */
+function tokensToFunction (tokens) {
+  // Compile all the tokens into regexps.
+  var matches = new Array(tokens.length);
+
+  // Compile all the patterns before compilation.
+  for (var i = 0; i < tokens.length; i++) {
+    if (typeof tokens[i] === 'object') {
+      matches[i] = new RegExp('^(?:' + tokens[i].pattern + ')$');
+    }
+  }
+
+  return function (obj, opts) {
+    var path = '';
+    var data = obj || {};
+    var options = opts || {};
+    var encode = options.pretty ? encodeURIComponentPretty : encodeURIComponent;
+
+    for (var i = 0; i < tokens.length; i++) {
+      var token = tokens[i];
+
+      if (typeof token === 'string') {
+        path += token;
+
+        continue
+      }
+
+      var value = data[token.name];
+      var segment;
+
+      if (value == null) {
+        if (token.optional) {
+          // Prepend partial segment prefixes.
+          if (token.partial) {
+            path += token.prefix;
+          }
+
+          continue
+        } else {
+          throw new TypeError('Expected "' + token.name + '" to be defined')
+        }
+      }
+
+      if (isarray(value)) {
+        if (!token.repeat) {
+          throw new TypeError('Expected "' + token.name + '" to not repeat, but received `' + JSON.stringify(value) + '`')
+        }
+
+        if (value.length === 0) {
+          if (token.optional) {
+            continue
+          } else {
+            throw new TypeError('Expected "' + token.name + '" to not be empty')
+          }
+        }
+
+        for (var j = 0; j < value.length; j++) {
+          segment = encode(value[j]);
+
+          if (!matches[i].test(segment)) {
+            throw new TypeError('Expected all "' + token.name + '" to match "' + token.pattern + '", but received `' + JSON.stringify(segment) + '`')
+          }
+
+          path += (j === 0 ? token.prefix : token.delimiter) + segment;
+        }
+
+        continue
+      }
+
+      segment = token.asterisk ? encodeAsterisk(value) : encode(value);
+
+      if (!matches[i].test(segment)) {
+        throw new TypeError('Expected "' + token.name + '" to match "' + token.pattern + '", but received "' + segment + '"')
+      }
+
+      path += token.prefix + segment;
+    }
+
+    return path
+  }
+}
+
+/**
+ * Escape a regular expression string.
+ *
+ * @param  {string} str
+ * @return {string}
+ */
+function escapeString (str) {
+  return str.replace(/([.+*?=^!:${}()[\]|\/\\])/g, '\\$1')
+}
+
+/**
+ * Escape the capturing group by escaping special characters and meaning.
+ *
+ * @param  {string} group
+ * @return {string}
+ */
+function escapeGroup (group) {
+  return group.replace(/([=!:$\/()])/g, '\\$1')
+}
+
+/**
+ * Attach the keys as a property of the regexp.
+ *
+ * @param  {!RegExp} re
+ * @param  {Array}   keys
+ * @return {!RegExp}
+ */
+function attachKeys (re, keys) {
+  re.keys = keys;
+  return re
+}
+
+/**
+ * Get the flags for a regexp from the options.
+ *
+ * @param  {Object} options
+ * @return {string}
+ */
+function flags (options) {
+  return options.sensitive ? '' : 'i'
+}
+
+/**
+ * Pull out keys from a regexp.
+ *
+ * @param  {!RegExp} path
+ * @param  {!Array}  keys
+ * @return {!RegExp}
+ */
+function regexpToRegexp (path, keys) {
+  // Use a negative lookahead to match only capturing groups.
+  var groups = path.source.match(/\((?!\?)/g);
+
+  if (groups) {
+    for (var i = 0; i < groups.length; i++) {
+      keys.push({
+        name: i,
+        prefix: null,
+        delimiter: null,
+        optional: false,
+        repeat: false,
+        partial: false,
+        asterisk: false,
+        pattern: null
+      });
+    }
+  }
+
+  return attachKeys(path, keys)
+}
+
+/**
+ * Transform an array into a regexp.
+ *
+ * @param  {!Array}  path
+ * @param  {Array}   keys
+ * @param  {!Object} options
+ * @return {!RegExp}
+ */
+function arrayToRegexp (path, keys, options) {
+  var parts = [];
+
+  for (var i = 0; i < path.length; i++) {
+    parts.push(pathToRegexp(path[i], keys, options).source);
+  }
+
+  var regexp = new RegExp('(?:' + parts.join('|') + ')', flags(options));
+
+  return attachKeys(regexp, keys)
+}
+
+/**
+ * Create a path regexp from string input.
+ *
+ * @param  {string}  path
+ * @param  {!Array}  keys
+ * @param  {!Object} options
+ * @return {!RegExp}
+ */
+function stringToRegexp (path, keys, options) {
+  return tokensToRegExp(parse(path, options), keys, options)
+}
+
+/**
+ * Expose a function for taking tokens and returning a RegExp.
+ *
+ * @param  {!Array}          tokens
+ * @param  {(Array|Object)=} keys
+ * @param  {Object=}         options
+ * @return {!RegExp}
+ */
+function tokensToRegExp (tokens, keys, options) {
+  if (!isarray(keys)) {
+    options = /** @type {!Object} */ (keys || options);
+    keys = [];
+  }
+
+  options = options || {};
+
+  var strict = options.strict;
+  var end = options.end !== false;
+  var route = '';
+
+  // Iterate over the tokens and create our regexp string.
+  for (var i = 0; i < tokens.length; i++) {
+    var token = tokens[i];
+
+    if (typeof token === 'string') {
+      route += escapeString(token);
+    } else {
+      var prefix = escapeString(token.prefix);
+      var capture = '(?:' + token.pattern + ')';
+
+      keys.push(token);
+
+      if (token.repeat) {
+        capture += '(?:' + prefix + capture + ')*';
+      }
+
+      if (token.optional) {
+        if (!token.partial) {
+          capture = '(?:' + prefix + '(' + capture + '))?';
+        } else {
+          capture = prefix + '(' + capture + ')?';
+        }
+      } else {
+        capture = prefix + '(' + capture + ')';
+      }
+
+      route += capture;
+    }
+  }
+
+  var delimiter = escapeString(options.delimiter || '/');
+  var endsWithDelimiter = route.slice(-delimiter.length) === delimiter;
+
+  // In non-strict mode we allow a slash at the end of match. If the path to
+  // match already ends with a slash, we remove it for consistency. The slash
+  // is valid at the end of a path match, not in the middle. This is important
+  // in non-ending mode, where "/test/" shouldn't match "/test//route".
+  if (!strict) {
+    route = (endsWithDelimiter ? route.slice(0, -delimiter.length) : route) + '(?:' + delimiter + '(?=$))?';
+  }
+
+  if (end) {
+    route += '$';
+  } else {
+    // In non-ending mode, we need the capturing groups to match as much as
+    // possible by using a positive lookahead to the end or next path segment.
+    route += strict && endsWithDelimiter ? '' : '(?=' + delimiter + '|$)';
+  }
+
+  return attachKeys(new RegExp('^' + route, flags(options)), keys)
+}
+
+/**
+ * Normalize the given path string, returning a regular expression.
+ *
+ * An empty array can be passed in for the keys, which will hold the
+ * placeholder key descriptions. For example, using `/user/:id`, `keys` will
+ * contain `[{ name: 'id', delimiter: '/', optional: false, repeat: false }]`.
+ *
+ * @param  {(string|RegExp|Array)} path
+ * @param  {(Array|Object)=}       keys
+ * @param  {Object=}               options
+ * @return {!RegExp}
+ */
+function pathToRegexp (path, keys, options) {
+  if (!isarray(keys)) {
+    options = /** @type {!Object} */ (keys || options);
+    keys = [];
+  }
+
+  options = options || {};
+
+  if (path instanceof RegExp) {
+    return regexpToRegexp(path, /** @type {!Array} */ (keys))
+  }
+
+  if (isarray(path)) {
+    return arrayToRegexp(/** @type {!Array} */ (path), /** @type {!Array} */ (keys), options)
+  }
+
+  return stringToRegexp(/** @type {string} */ (path), /** @type {!Array} */ (keys), options)
+}
+
+index.parse = parse_1;
+index.compile = compile_1;
+index.tokensToFunction = tokensToFunction_1;
+index.tokensToRegExp = tokensToRegExp_1;
+
+/*  */
+
+var regexpCache = Object.create(null);
+
+function getRouteRegex (path) {
+  var hit = regexpCache[path];
+  var keys, regexp;
+
+  if (hit) {
+    keys = hit.keys;
+    regexp = hit.regexp;
+  } else {
+    keys = [];
+    regexp = index(path, keys);
+    regexpCache[path] = { keys: keys, regexp: regexp };
+  }
+
+  return { keys: keys, regexp: regexp }
+}
+
+var regexpCompileCache = Object.create(null);
+
+function fillParams (
+  path,
+  params,
+  routeMsg
+) {
+  try {
+    var filler =
+      regexpCompileCache[path] ||
+      (regexpCompileCache[path] = index.compile(path));
+    return filler(params || {}, { pretty: true })
+  } catch (e) {
+    if (process.env.NODE_ENV !== 'production') {
+      warn(false, ("missing param for " + routeMsg + ": " + (e.message)));
+    }
+    return ''
+  }
+}
+
+/*  */
+
+function normalizeLocation (
+  raw,
+  current,
+  append
+) {
+  var next = typeof raw === 'string' ? { path: raw } : raw;
+  // named target
+  if (next.name || next._normalized) {
+    return next
+  }
+
+  // relative params
+  if (!next.path && next.params && current) {
+    next = assign({}, next);
+    next._normalized = true;
+    var params = assign(assign({}, current.params), next.params);
+    if (current.name) {
+      next.name = current.name;
+      next.params = params;
+    } else if (current.matched) {
+      var rawPath = current.matched[current.matched.length - 1].path;
+      next.path = fillParams(rawPath, params, ("path " + (current.path)));
+    } else if (process.env.NODE_ENV !== 'production') {
+      warn(false, "relative params navigation requires a current route.");
+    }
+    return next
+  }
+
+  var parsedPath = parsePath(next.path || '');
+  var basePath = (current && current.path) || '/';
+  var path = parsedPath.path
+    ? resolvePath(parsedPath.path, basePath, append || next.append)
+    : (current && current.path) || '/';
+  var query = resolveQuery(parsedPath.query, next.query);
+  var hash = next.hash || parsedPath.hash;
+  if (hash && hash.charAt(0) !== '#') {
+    hash = "#" + hash;
+  }
+
+  return {
+    _normalized: true,
+    path: path,
+    query: query,
+    hash: hash
+  }
+}
+
+function assign (a, b) {
+  for (var key in b) {
+    a[key] = b[key];
+  }
+  return a
+}
+
+/*  */
+
+function createMatcher (routes) {
+  var ref = createRouteMap(routes);
+  var pathMap = ref.pathMap;
+  var nameMap = ref.nameMap;
+
+  function addRoutes (routes) {
+    createRouteMap(routes, pathMap, nameMap);
+  }
+
+  function match (
+    raw,
+    currentRoute,
+    redirectedFrom
+  ) {
+    var location = normalizeLocation(raw, currentRoute);
+    var name = location.name;
+
+    if (name) {
+      var record = nameMap[name];
+      if (process.env.NODE_ENV !== 'production') {
+        warn(record, ("Route with name '" + name + "' does not exist"));
+      }
+      var paramNames = getRouteRegex(record.path).keys
+        .filter(function (key) { return !key.optional; })
+        .map(function (key) { return key.name; });
+
+      if (typeof location.params !== 'object') {
+        location.params = {};
+      }
+
+      if (currentRoute && typeof currentRoute.params === 'object') {
+        for (var key in currentRoute.params) {
+          if (!(key in location.params) && paramNames.indexOf(key) > -1) {
+            location.params[key] = currentRoute.params[key];
+          }
+        }
+      }
+
+      if (record) {
+        location.path = fillParams(record.path, location.params, ("named route \"" + name + "\""));
+        return _createRoute(record, location, redirectedFrom)
+      }
+    } else if (location.path) {
+      location.params = {};
+      for (var path in pathMap) {
+        if (matchRoute(path, location.params, location.path)) {
+          return _createRoute(pathMap[path], location, redirectedFrom)
+        }
+      }
+    }
+    // no match
+    return _createRoute(null, location)
+  }
+
+  function redirect (
+    record,
+    location
+  ) {
+    var originalRedirect = record.redirect;
+    var redirect = typeof originalRedirect === 'function'
+        ? originalRedirect(createRoute(record, location))
+        : originalRedirect;
+
+    if (typeof redirect === 'string') {
+      redirect = { path: redirect };
+    }
+
+    if (!redirect || typeof redirect !== 'object') {
+      process.env.NODE_ENV !== 'production' && warn(
+        false, ("invalid redirect option: " + (JSON.stringify(redirect)))
+      );
+      return _createRoute(null, location)
+    }
+
+    var re = redirect;
+    var name = re.name;
+    var path = re.path;
+    var query = location.query;
+    var hash = location.hash;
+    var params = location.params;
+    query = re.hasOwnProperty('query') ? re.query : query;
+    hash = re.hasOwnProperty('hash') ? re.hash : hash;
+    params = re.hasOwnProperty('params') ? re.params : params;
+
+    if (name) {
+      // resolved named direct
+      var targetRecord = nameMap[name];
+      if (process.env.NODE_ENV !== 'production') {
+        assert(targetRecord, ("redirect failed: named route \"" + name + "\" not found."));
+      }
+      return match({
+        _normalized: true,
+        name: name,
+        query: query,
+        hash: hash,
+        params: params
+      }, undefined, location)
+    } else if (path) {
+      // 1. resolve relative redirect
+      var rawPath = resolveRecordPath(path, record);
+      // 2. resolve params
+      var resolvedPath = fillParams(rawPath, params, ("redirect route with path \"" + rawPath + "\""));
+      // 3. rematch with existing query and hash
+      return match({
+        _normalized: true,
+        path: resolvedPath,
+        query: query,
+        hash: hash
+      }, undefined, location)
+    } else {
+      warn(false, ("invalid redirect option: " + (JSON.stringify(redirect))));
+      return _createRoute(null, location)
+    }
+  }
+
+  function alias (
+    record,
+    location,
+    matchAs
+  ) {
+    var aliasedPath = fillParams(matchAs, location.params, ("aliased route with path \"" + matchAs + "\""));
+    var aliasedMatch = match({
+      _normalized: true,
+      path: aliasedPath
+    });
+    if (aliasedMatch) {
+      var matched = aliasedMatch.matched;
+      var aliasedRecord = matched[matched.length - 1];
+      location.params = aliasedMatch.params;
+      return _createRoute(aliasedRecord, location)
+    }
+    return _createRoute(null, location)
+  }
+
+  function _createRoute (
+    record,
+    location,
+    redirectedFrom
+  ) {
+    if (record && record.redirect) {
+      return redirect(record, redirectedFrom || location)
+    }
+    if (record && record.matchAs) {
+      return alias(record, location, record.matchAs)
+    }
+    return createRoute(record, location, redirectedFrom)
+  }
+
+  return {
+    match: match,
+    addRoutes: addRoutes
+  }
+}
+
+function matchRoute (
+  path,
+  params,
+  pathname
+) {
+  var ref = getRouteRegex(path);
+  var regexp = ref.regexp;
+  var keys = ref.keys;
+  var m = pathname.match(regexp);
+
+  if (!m) {
+    return false
+  } else if (!params) {
+    return true
+  }
+
+  for (var i = 1, len = m.length; i < len; ++i) {
+    var key = keys[i - 1];
+    var val = typeof m[i] === 'string' ? decodeURIComponent(m[i]) : m[i];
+    if (key) { params[key.name] = val; }
+  }
+
+  return true
+}
+
+function resolveRecordPath (path, record) {
+  return resolvePath(path, record.parent ? record.parent.path : '/', true)
+}
+
+/*  */
+
+
+var positionStore = Object.create(null);
+
+function setupScroll () {
+  window.addEventListener('popstate', function (e) {
+    saveScrollPosition();
+    if (e.state && e.state.key) {
+      setStateKey(e.state.key);
+    }
+  });
+}
+
+function handleScroll (
+  router,
+  to,
+  from,
+  isPop
+) {
+  if (!router.app) {
+    return
+  }
+
+  var behavior = router.options.scrollBehavior;
+  if (!behavior) {
+    return
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    assert(typeof behavior === 'function', "scrollBehavior must be a function");
+  }
+
+  // wait until re-render finishes before scrolling
+  router.app.$nextTick(function () {
+    var position = getScrollPosition();
+    var shouldScroll = behavior(to, from, isPop ? position : null);
+    if (!shouldScroll) {
+      return
+    }
+    var isObject = typeof shouldScroll === 'object';
+    if (isObject && typeof shouldScroll.selector === 'string') {
+      var el = document.querySelector(shouldScroll.selector);
+      if (el) {
+        position = getElementPosition(el);
+      } else if (isValidPosition(shouldScroll)) {
+        position = normalizePosition(shouldScroll);
+      }
+    } else if (isObject && isValidPosition(shouldScroll)) {
+      position = normalizePosition(shouldScroll);
+    }
+
+    if (position) {
+      window.scrollTo(position.x, position.y);
+    }
+  });
+}
+
+function saveScrollPosition () {
+  var key = getStateKey();
+  if (key) {
+    positionStore[key] = {
+      x: window.pageXOffset,
+      y: window.pageYOffset
+    };
+  }
+}
+
+function getScrollPosition () {
+  var key = getStateKey();
+  if (key) {
+    return positionStore[key]
+  }
+}
+
+function getElementPosition (el) {
+  var docRect = document.documentElement.getBoundingClientRect();
+  var elRect = el.getBoundingClientRect();
+  return {
+    x: elRect.left - docRect.left,
+    y: elRect.top - docRect.top
+  }
+}
+
+function isValidPosition (obj) {
+  return isNumber(obj.x) || isNumber(obj.y)
+}
+
+function normalizePosition (obj) {
+  return {
+    x: isNumber(obj.x) ? obj.x : window.pageXOffset,
+    y: isNumber(obj.y) ? obj.y : window.pageYOffset
+  }
+}
+
+function isNumber (v) {
+  return typeof v === 'number'
+}
+
+/*  */
+
+var supportsPushState = inBrowser && (function () {
+  var ua = window.navigator.userAgent;
+
+  if (
+    (ua.indexOf('Android 2.') !== -1 || ua.indexOf('Android 4.0') !== -1) &&
+    ua.indexOf('Mobile Safari') !== -1 &&
+    ua.indexOf('Chrome') === -1 &&
+    ua.indexOf('Windows Phone') === -1
+  ) {
+    return false
+  }
+
+  return window.history && 'pushState' in window.history
+})();
+
+// use User Timing api (if present) for more accurate key precision
+var Time = inBrowser && window.performance && window.performance.now
+  ? window.performance
+  : Date;
+
+var _key = genKey();
+
+function genKey () {
+  return Time.now().toFixed(3)
+}
+
+function getStateKey () {
+  return _key
+}
+
+function setStateKey (key) {
+  _key = key;
+}
+
+function pushState (url, replace) {
+  saveScrollPosition();
+  // try...catch the pushState call to get around Safari
+  // DOM Exception 18 where it limits to 100 pushState calls
+  var history = window.history;
+  try {
+    if (replace) {
+      history.replaceState({ key: _key }, '', url);
+    } else {
+      _key = genKey();
+      history.pushState({ key: _key }, '', url);
+    }
+  } catch (e) {
+    window.location[replace ? 'replace' : 'assign'](url);
+  }
+}
+
+function replaceState (url) {
+  pushState(url, true);
+}
+
+/*  */
+
+function runQueue (queue, fn, cb) {
+  var step = function (index) {
+    if (index >= queue.length) {
+      cb();
+    } else {
+      if (queue[index]) {
+        fn(queue[index], function () {
+          step(index + 1);
+        });
+      } else {
+        step(index + 1);
+      }
+    }
+  };
+  step(0);
+}
+
+/*  */
+
+
+var History = function History (router, base) {
+  this.router = router;
+  this.base = normalizeBase(base);
+  // start with a route object that stands for "nowhere"
+  this.current = START;
+  this.pending = null;
+  this.ready = false;
+  this.readyCbs = [];
+};
+
+History.prototype.listen = function listen (cb) {
+  this.cb = cb;
+};
+
+History.prototype.onReady = function onReady (cb) {
+  if (this.ready) {
+    cb();
+  } else {
+    this.readyCbs.push(cb);
+  }
+};
+
+History.prototype.transitionTo = function transitionTo (location, onComplete, onAbort) {
+    var this$1 = this;
+
+  var route = this.router.match(location, this.current);
+  this.confirmTransition(route, function () {
+    this$1.updateRoute(route);
+    onComplete && onComplete(route);
+    this$1.ensureURL();
+
+    // fire ready cbs once
+    if (!this$1.ready) {
+      this$1.ready = true;
+      this$1.readyCbs.forEach(function (cb) {
+        cb(route);
+      });
+    }
+  }, onAbort);
+};
+
+History.prototype.confirmTransition = function confirmTransition (route, onComplete, onAbort) {
+    var this$1 = this;
+
+  var current = this.current;
+  var abort = function () { onAbort && onAbort(); };
+  if (
+    isSameRoute(route, current) &&
+    // in the case the route map has been dynamically appended to
+    route.matched.length === current.matched.length
+  ) {
+    this.ensureURL();
+    return abort()
+  }
+
+  var ref = resolveQueue(this.current.matched, route.matched);
+    var updated = ref.updated;
+    var deactivated = ref.deactivated;
+    var activated = ref.activated;
+
+  var queue = [].concat(
+    // in-component leave guards
+    extractLeaveGuards(deactivated),
+    // global before hooks
+    this.router.beforeHooks,
+    // in-component update hooks
+    extractUpdateHooks(updated),
+    // in-config enter guards
+    activated.map(function (m) { return m.beforeEnter; }),
+    // async components
+    resolveAsyncComponents(activated)
+  );
+
+  this.pending = route;
+  var iterator = function (hook, next) {
+    if (this$1.pending !== route) {
+      return abort()
+    }
+    hook(route, current, function (to) {
+      if (to === false) {
+        // next(false) -> abort navigation, ensure current URL
+        this$1.ensureURL(true);
+        abort();
+      } else if (typeof to === 'string' || typeof to === 'object') {
+        // next('/') or next({ path: '/' }) -> redirect
+        (typeof to === 'object' && to.replace) ? this$1.replace(to) : this$1.push(to);
+        abort();
+      } else {
+        // confirm transition and pass on the value
+        next(to);
+      }
+    });
+  };
+
+  runQueue(queue, iterator, function () {
+    var postEnterCbs = [];
+    var isValid = function () { return this$1.current === route; };
+    var enterGuards = extractEnterGuards(activated, postEnterCbs, isValid);
+    // wait until async components are resolved before
+    // extracting in-component enter guards
+    runQueue(enterGuards, iterator, function () {
+      if (this$1.pending !== route) {
+        return abort()
+      }
+      this$1.pending = null;
+      onComplete(route);
+      if (this$1.router.app) {
+        this$1.router.app.$nextTick(function () {
+          postEnterCbs.forEach(function (cb) { return cb(); });
+        });
+      }
+    });
+  });
+};
+
+History.prototype.updateRoute = function updateRoute (route) {
+  var prev = this.current;
+  this.current = route;
+  this.cb && this.cb(route);
+  this.router.afterHooks.forEach(function (hook) {
+    hook && hook(route, prev);
+  });
+};
+
+function normalizeBase (base) {
+  if (!base) {
+    if (inBrowser) {
+      // respect <base> tag
+      var baseEl = document.querySelector('base');
+      base = baseEl ? baseEl.getAttribute('href') : '/';
+    } else {
+      base = '/';
+    }
+  }
+  // make sure there's the starting slash
+  if (base.charAt(0) !== '/') {
+    base = '/' + base;
+  }
+  // remove trailing slash
+  return base.replace(/\/$/, '')
+}
+
+function resolveQueue (
+  current,
+  next
+) {
+  var i;
+  var max = Math.max(current.length, next.length);
+  for (i = 0; i < max; i++) {
+    if (current[i] !== next[i]) {
+      break
+    }
+  }
+  return {
+    updated: next.slice(0, i),
+    activated: next.slice(i),
+    deactivated: current.slice(i)
+  }
+}
+
+function extractGuards (
+  records,
+  name,
+  bind,
+  reverse
+) {
+  var guards = flatMapComponents(records, function (def, instance, match, key) {
+    var guard = extractGuard(def, name);
+    if (guard) {
+      return Array.isArray(guard)
+        ? guard.map(function (guard) { return bind(guard, instance, match, key); })
+        : bind(guard, instance, match, key)
+    }
+  });
+  return flatten(reverse ? guards.reverse() : guards)
+}
+
+function extractGuard (
+  def,
+  key
+) {
+  if (typeof def !== 'function') {
+    // extend now so that global mixins are applied.
+    def = _Vue.extend(def);
+  }
+  return def.options[key]
+}
+
+function extractLeaveGuards (deactivated) {
+  return extractGuards(deactivated, 'beforeRouteLeave', bindGuard, true)
+}
+
+function extractUpdateHooks (updated) {
+  return extractGuards(updated, 'beforeRouteUpdate', bindGuard)
+}
+
+function bindGuard (guard, instance) {
+  return function boundRouteGuard () {
+    return guard.apply(instance, arguments)
+  }
+}
+
+function extractEnterGuards (
+  activated,
+  cbs,
+  isValid
+) {
+  return extractGuards(activated, 'beforeRouteEnter', function (guard, _, match, key) {
+    return bindEnterGuard(guard, match, key, cbs, isValid)
+  })
+}
+
+function bindEnterGuard (
+  guard,
+  match,
+  key,
+  cbs,
+  isValid
+) {
+  return function routeEnterGuard (to, from, next) {
+    return guard(to, from, function (cb) {
+      next(cb);
+      if (typeof cb === 'function') {
+        cbs.push(function () {
+          // #750
+          // if a router-view is wrapped with an out-in transition,
+          // the instance may not have been registered at this time.
+          // we will need to poll for registration until current route
+          // is no longer valid.
+          poll(cb, match.instances, key, isValid);
+        });
+      }
+    })
+  }
+}
+
+function poll (
+  cb, // somehow flow cannot infer this is a function
+  instances,
+  key,
+  isValid
+) {
+  if (instances[key]) {
+    cb(instances[key]);
+  } else if (isValid()) {
+    setTimeout(function () {
+      poll(cb, instances, key, isValid);
+    }, 16);
+  }
+}
+
+function resolveAsyncComponents (matched) {
+  return flatMapComponents(matched, function (def, _, match, key) {
+    // if it's a function and doesn't have Vue options attached,
+    // assume it's an async component resolve function.
+    // we are not using Vue's default async resolving mechanism because
+    // we want to halt the navigation until the incoming component has been
+    // resolved.
+    if (typeof def === 'function' && !def.options) {
+      return function (to, from, next) {
+        var resolve = once(function (resolvedDef) {
+          match.components[key] = resolvedDef;
+          next();
+        });
+
+        var reject = once(function (reason) {
+          warn(false, ("Failed to resolve async component " + key + ": " + reason));
+          next(false);
+        });
+
+        var res = def(resolve, reject);
+        if (res && typeof res.then === 'function') {
+          res.then(resolve, reject);
+        }
+      }
+    }
+  })
+}
+
+function flatMapComponents (
+  matched,
+  fn
+) {
+  return flatten(matched.map(function (m) {
+    return Object.keys(m.components).map(function (key) { return fn(
+      m.components[key],
+      m.instances[key],
+      m, key
+    ); })
+  }))
+}
+
+function flatten (arr) {
+  return Array.prototype.concat.apply([], arr)
+}
+
+// in Webpack 2, require.ensure now also returns a Promise
+// so the resolve/reject functions may get called an extra time
+// if the user uses an arrow function shorthand that happens to
+// return that Promise.
+function once (fn) {
+  var called = false;
+  return function () {
+    if (called) { return }
+    called = true;
+    return fn.apply(this, arguments)
+  }
+}
+
+/*  */
+
+
+var HTML5History = (function (History$$1) {
+  function HTML5History (router, base) {
+    var this$1 = this;
+
+    History$$1.call(this, router, base);
+
+    var expectScroll = router.options.scrollBehavior;
+
+    if (expectScroll) {
+      setupScroll();
+    }
+
+    window.addEventListener('popstate', function (e) {
+      this$1.transitionTo(getLocation(this$1.base), function (route) {
+        if (expectScroll) {
+          handleScroll(router, route, this$1.current, true);
+        }
+      });
+    });
+  }
+
+  if ( History$$1 ) HTML5History.__proto__ = History$$1;
+  HTML5History.prototype = Object.create( History$$1 && History$$1.prototype );
+  HTML5History.prototype.constructor = HTML5History;
+
+  HTML5History.prototype.go = function go (n) {
+    window.history.go(n);
+  };
+
+  HTML5History.prototype.push = function push (location, onComplete, onAbort) {
+    var this$1 = this;
+
+    this.transitionTo(location, function (route) {
+      pushState(cleanPath(this$1.base + route.fullPath));
+      handleScroll(this$1.router, route, this$1.current, false);
+      onComplete && onComplete(route);
+    }, onAbort);
+  };
+
+  HTML5History.prototype.replace = function replace (location, onComplete, onAbort) {
+    var this$1 = this;
+
+    this.transitionTo(location, function (route) {
+      replaceState(cleanPath(this$1.base + route.fullPath));
+      handleScroll(this$1.router, route, this$1.current, false);
+      onComplete && onComplete(route);
+    }, onAbort);
+  };
+
+  HTML5History.prototype.ensureURL = function ensureURL (push) {
+    if (getLocation(this.base) !== this.current.fullPath) {
+      var current = cleanPath(this.base + this.current.fullPath);
+      push ? pushState(current) : replaceState(current);
+    }
+  };
+
+  HTML5History.prototype.getCurrentLocation = function getCurrentLocation () {
+    return getLocation(this.base)
+  };
+
+  return HTML5History;
+}(History));
+
+function getLocation (base) {
+  var path = window.location.pathname;
+  if (base && path.indexOf(base) === 0) {
+    path = path.slice(base.length);
+  }
+  return (path || '/') + window.location.search + window.location.hash
+}
+
+/*  */
+
+
+var HashHistory = (function (History$$1) {
+  function HashHistory (router, base, fallback) {
+    History$$1.call(this, router, base);
+    // check history fallback deeplinking
+    if (fallback && checkFallback(this.base)) {
+      return
+    }
+    ensureSlash();
+  }
+
+  if ( History$$1 ) HashHistory.__proto__ = History$$1;
+  HashHistory.prototype = Object.create( History$$1 && History$$1.prototype );
+  HashHistory.prototype.constructor = HashHistory;
+
+  // this is delayed until the app mounts
+  // to avoid the hashchange listener being fired too early
+  HashHistory.prototype.setupListeners = function setupListeners () {
+    var this$1 = this;
+
+    window.addEventListener('hashchange', function () {
+      if (!ensureSlash()) {
+        return
+      }
+      this$1.transitionTo(getHash(), function (route) {
+        replaceHash(route.fullPath);
+      });
+    });
+  };
+
+  HashHistory.prototype.push = function push (location, onComplete, onAbort) {
+    this.transitionTo(location, function (route) {
+      pushHash(route.fullPath);
+      onComplete && onComplete(route);
+    }, onAbort);
+  };
+
+  HashHistory.prototype.replace = function replace (location, onComplete, onAbort) {
+    this.transitionTo(location, function (route) {
+      replaceHash(route.fullPath);
+      onComplete && onComplete(route);
+    }, onAbort);
+  };
+
+  HashHistory.prototype.go = function go (n) {
+    window.history.go(n);
+  };
+
+  HashHistory.prototype.ensureURL = function ensureURL (push) {
+    var current = this.current.fullPath;
+    if (getHash() !== current) {
+      push ? pushHash(current) : replaceHash(current);
+    }
+  };
+
+  HashHistory.prototype.getCurrentLocation = function getCurrentLocation () {
+    return getHash()
+  };
+
+  return HashHistory;
+}(History));
+
+function checkFallback (base) {
+  var location = getLocation(base);
+  if (!/^\/#/.test(location)) {
+    window.location.replace(
+      cleanPath(base + '/#' + location)
+    );
+    return true
+  }
+}
+
+function ensureSlash () {
+  var path = getHash();
+  if (path.charAt(0) === '/') {
+    return true
+  }
+  replaceHash('/' + path);
+  return false
+}
+
+function getHash () {
+  // We can't use window.location.hash here because it's not
+  // consistent across browsers - Firefox will pre-decode it!
+  var href = window.location.href;
+  var index = href.indexOf('#');
+  return index === -1 ? '' : href.slice(index + 1)
+}
+
+function pushHash (path) {
+  window.location.hash = path;
+}
+
+function replaceHash (path) {
+  var i = window.location.href.indexOf('#');
+  window.location.replace(
+    window.location.href.slice(0, i >= 0 ? i : 0) + '#' + path
+  );
+}
+
+/*  */
+
+
+var AbstractHistory = (function (History$$1) {
+  function AbstractHistory (router, base) {
+    History$$1.call(this, router, base);
+    this.stack = [];
+    this.index = -1;
+  }
+
+  if ( History$$1 ) AbstractHistory.__proto__ = History$$1;
+  AbstractHistory.prototype = Object.create( History$$1 && History$$1.prototype );
+  AbstractHistory.prototype.constructor = AbstractHistory;
+
+  AbstractHistory.prototype.push = function push (location, onComplete, onAbort) {
+    var this$1 = this;
+
+    this.transitionTo(location, function (route) {
+      this$1.stack = this$1.stack.slice(0, this$1.index + 1).concat(route);
+      this$1.index++;
+      onComplete && onComplete(route);
+    }, onAbort);
+  };
+
+  AbstractHistory.prototype.replace = function replace (location, onComplete, onAbort) {
+    var this$1 = this;
+
+    this.transitionTo(location, function (route) {
+      this$1.stack = this$1.stack.slice(0, this$1.index).concat(route);
+      onComplete && onComplete(route);
+    }, onAbort);
+  };
+
+  AbstractHistory.prototype.go = function go (n) {
+    var this$1 = this;
+
+    var targetIndex = this.index + n;
+    if (targetIndex < 0 || targetIndex >= this.stack.length) {
+      return
+    }
+    var route = this.stack[targetIndex];
+    this.confirmTransition(route, function () {
+      this$1.index = targetIndex;
+      this$1.updateRoute(route);
+    });
+  };
+
+  AbstractHistory.prototype.getCurrentLocation = function getCurrentLocation () {
+    var current = this.stack[this.stack.length - 1];
+    return current ? current.fullPath : '/'
+  };
+
+  AbstractHistory.prototype.ensureURL = function ensureURL () {
+    // noop
+  };
+
+  return AbstractHistory;
+}(History));
+
+/*  */
+
+var VueRouter = function VueRouter (options) {
+  if ( options === void 0 ) options = {};
+
+  this.app = null;
+  this.apps = [];
+  this.options = options;
+  this.beforeHooks = [];
+  this.afterHooks = [];
+  this.matcher = createMatcher(options.routes || []);
+
+  var mode = options.mode || 'hash';
+  this.fallback = mode === 'history' && !supportsPushState;
+  if (this.fallback) {
+    mode = 'hash';
+  }
+  if (!inBrowser) {
+    mode = 'abstract';
+  }
+  this.mode = mode;
+
+  switch (mode) {
+    case 'history':
+      this.history = new HTML5History(this, options.base);
+      break
+    case 'hash':
+      this.history = new HashHistory(this, options.base, this.fallback);
+      break
+    case 'abstract':
+      this.history = new AbstractHistory(this, options.base);
+      break
+    default:
+      if (process.env.NODE_ENV !== 'production') {
+        assert(false, ("invalid mode: " + mode));
+      }
+  }
+};
+
+var prototypeAccessors = { currentRoute: {} };
+
+VueRouter.prototype.match = function match (
+  raw,
+  current,
+  redirectedFrom
+) {
+  return this.matcher.match(raw, current, redirectedFrom)
+};
+
+prototypeAccessors.currentRoute.get = function () {
+  return this.history && this.history.current
+};
+
+VueRouter.prototype.init = function init (app /* Vue component instance */) {
+    var this$1 = this;
+
+  process.env.NODE_ENV !== 'production' && assert(
+    install.installed,
+    "not installed. Make sure to call `Vue.use(VueRouter)` " +
+    "before creating root instance."
+  );
+
+  this.apps.push(app);
+
+  // main app already initialized.
+  if (this.app) {
+    return
+  }
+
+  this.app = app;
+
+  var history = this.history;
+
+  if (history instanceof HTML5History) {
+    history.transitionTo(history.getCurrentLocation());
+  } else if (history instanceof HashHistory) {
+    var setupHashListener = function () {
+      history.setupListeners();
+    };
+    history.transitionTo(
+      history.getCurrentLocation(),
+      setupHashListener,
+      setupHashListener
+    );
+  }
+
+  history.listen(function (route) {
+    this$1.apps.forEach(function (app) {
+      app._route = route;
+    });
+  });
+};
+
+VueRouter.prototype.beforeEach = function beforeEach (fn) {
+  this.beforeHooks.push(fn);
+};
+
+VueRouter.prototype.afterEach = function afterEach (fn) {
+  this.afterHooks.push(fn);
+};
+
+VueRouter.prototype.onReady = function onReady (cb) {
+  this.history.onReady(cb);
+};
+
+VueRouter.prototype.push = function push (location, onComplete, onAbort) {
+  this.history.push(location, onComplete, onAbort);
+};
+
+VueRouter.prototype.replace = function replace (location, onComplete, onAbort) {
+  this.history.replace(location, onComplete, onAbort);
+};
+
+VueRouter.prototype.go = function go (n) {
+  this.history.go(n);
+};
+
+VueRouter.prototype.back = function back () {
+  this.go(-1);
+};
+
+VueRouter.prototype.forward = function forward () {
+  this.go(1);
+};
+
+VueRouter.prototype.getMatchedComponents = function getMatchedComponents (to) {
+  var route = to
+    ? this.resolve(to).route
+    : this.currentRoute;
+  if (!route) {
+    return []
+  }
+  return [].concat.apply([], route.matched.map(function (m) {
+    return Object.keys(m.components).map(function (key) {
+      return m.components[key]
+    })
+  }))
+};
+
+VueRouter.prototype.resolve = function resolve (
+  to,
+  current,
+  append
+) {
+  var location = normalizeLocation(to, current || this.history.current, append);
+  var route = this.match(location, current);
+  var fullPath = route.redirectedFrom || route.fullPath;
+  var base = this.history.base;
+  var href = createHref(base, fullPath, this.mode);
+  return {
+    location: location,
+    route: route,
+    href: href,
+    // for backwards compat
+    normalizedTo: location,
+    resolved: route
+  }
+};
+
+VueRouter.prototype.addRoutes = function addRoutes (routes) {
+  this.matcher.addRoutes(routes);
+  if (this.history.current !== START) {
+    this.history.transitionTo(this.history.getCurrentLocation());
+  }
+};
+
+Object.defineProperties( VueRouter.prototype, prototypeAccessors );
+
+function createHref (base, fullPath, mode) {
+  var path = mode === 'hash' ? '#' + fullPath : fullPath;
+  return base ? cleanPath(base + '/' + path) : path
+}
+
+VueRouter.install = install;
+VueRouter.version = '2.2.1';
+
+if (inBrowser && window.Vue) {
+  window.Vue.use(VueRouter);
+}
+
+module.exports = VueRouter;
+
+}).call(this,require('_process'))
+}).apply(this, arguments);
+
+},{"_process":212}],229:[function(require,module,exports){
 _hmr["websocket:null"].initModule("node_modules\\vue\\dist\\vue.runtime.common.js", module);
 (function(){
 (function (process,global){
@@ -22472,7 +24758,7 @@ module.exports = Vue$2;
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 }).apply(this, arguments);
 
-},{"_process":212}],229:[function(require,module,exports){
+},{"_process":212}],230:[function(require,module,exports){
 _hmr["websocket:null"].initModule("node_modules\\wtf-8\\wtf-8.js", module);
 (function(){
 (function (global){
@@ -22714,7 +25000,7 @@ _hmr["websocket:null"].initModule("node_modules\\wtf-8\\wtf-8.js", module);
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 }).apply(this, arguments);
 
-},{}],230:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
 _hmr["websocket:null"].initModule("node_modules\\yeast\\index.js", module);
 (function(){
 'use strict';
@@ -22788,7 +25074,7 @@ module.exports = yeast;
 
 }).apply(this, arguments);
 
-},{}],231:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 _hmr["websocket:null"].initModule("src\\app.js", module);
 (function(){
 'use strict';
@@ -22797,23 +25083,109 @@ var _vue = require('vue');
 
 var _vue2 = _interopRequireDefault(_vue);
 
-var _poll_viewer = require('./poll_viewer.vue');
+var _vueRouter = require('vue-router');
 
-var _poll_viewer2 = _interopRequireDefault(_poll_viewer);
+var _vueRouter2 = _interopRequireDefault(_vueRouter);
+
+var _Poll_List = require('./components/Poll_List.vue');
+
+var _Poll_List2 = _interopRequireDefault(_Poll_List);
+
+var _Poll = require('./components/Poll.vue');
+
+var _Poll2 = _interopRequireDefault(_Poll);
+
+var _App = require('./components/App.vue');
+
+var _App2 = _interopRequireDefault(_App);
+
+var _Login = require('./components/Login.vue');
+
+var _Login2 = _interopRequireDefault(_Login);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+_vue2.default.use(_vueRouter2.default);
+
+var router = new _vueRouter2.default({
+  mode: 'history',
+  base: '/',
+  routes: [{ path: "/", component: _Poll_List2.default }, { path: "/login", name: "login", component: _Login2.default }, { path: "/polls/:id", name: 'poll', component: _Poll2.default }]
+});
+
 new _vue2.default({
   el: '#app',
-  render: function render(createElement) {
-    return createElement(_poll_viewer2.default);
+  router: router,
+  render: function render(h) {
+    return h(_App2.default);
   }
 });
 
 }).apply(this, arguments);
 
-},{"./poll_viewer.vue":232,"vue":228}],232:[function(require,module,exports){
-_hmr["websocket:null"].initModule("src\\poll_viewer.vue", module);
+},{"./components/App.vue":233,"./components/Login.vue":234,"./components/Poll.vue":235,"./components/Poll_List.vue":236,"vue":229,"vue-router":228}],233:[function(require,module,exports){
+_hmr["websocket:null"].initModule("src\\components\\App.vue", module);
+(function(){
+;(function(){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = {};
+})()
+if (module.exports.__esModule) module.exports = module.exports.default
+var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
+if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('nav',{staticClass:"nav"},[_c('div',{staticClass:"nav-left"},[_c('router-link',{staticClass:"nav-item",attrs:{"to":{ path: '/' }}},[_c('h1',{staticClass:"title"},[_vm._v("Voto")])])],1),_c('div',{staticClass:"nav-center"},[_c('router-link',{staticClass:"nav-item",attrs:{"to":{path: '/'}}},[_vm._v("Current Polls")]),_c('router-link',{staticClass:"nav-item",attrs:{"to":{path: '/login'}}},[_vm._v("Log In")])],1),_c('div',{staticClass:"nav-right"})]),_c('router-view')],1)}
+__vue__options__.staticRenderFns = []
+if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-897d9484", __vue__options__)
+  } else {
+    hotAPI.rerender("data-v-897d9484", __vue__options__)
+  }
+})()}
+}).apply(this, arguments);
+
+},{"vue":229,"vue-hot-reload-api":227}],234:[function(require,module,exports){
+_hmr["websocket:null"].initModule("src\\components\\Login.vue", module);
+(function(){
+;(function(){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = {
+  data: function data() {
+    return {};
+  }
+};
+})()
+if (module.exports.__esModule) module.exports = module.exports.default
+var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
+if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _vm._m(0)}
+__vue__options__.staticRenderFns = [function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"columns"},[_c('div',{staticClass:"column"}),_c('div',{staticClass:"column"},[_c('label',{staticClass:"label"},[_vm._v("Username")]),_c('p',{staticClass:"control"},[_c('input',{staticClass:"input",attrs:{"type":"text","placeholder":"Username"}})]),_c('label',{staticClass:"label"},[_vm._v("Password")]),_c('p',{staticClass:"control"},[_c('input',{staticClass:"input",attrs:{"type":"password"}})]),_c('p',{staticClass:"control"},[_c('button',{staticClass:"button is-primary"},[_vm._v("Log In")])])]),_c('div',{staticClass:"column"})])}]
+__vue__options__._scopeId = "data-v-6edf79c6"
+if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-6edf79c6", __vue__options__)
+  } else {
+    hotAPI.rerender("data-v-6edf79c6", __vue__options__)
+  }
+})()}
+}).apply(this, arguments);
+
+},{"vue":229,"vue-hot-reload-api":227}],235:[function(require,module,exports){
+_hmr["websocket:null"].initModule("src\\components\\Poll.vue", module);
 (function(){
 ;(function(){
 'use strict';
@@ -22829,7 +25201,70 @@ var _axios2 = _interopRequireDefault(_axios);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
-  name: 'PollViewer',
+  data: function data() {
+    return {
+      poll: {}
+    };
+  },
+
+  watch: {
+    '$route': function $route(to, from) {
+      if (to.params.id !== from.params.id) {
+        this.getPollData();
+      }
+    }
+  },
+  beforeMount: function beforeMount() {
+    this.getPollData();
+  },
+
+  methods: {
+    getPollData: function getPollData() {
+      var _this = this;
+
+      _axios2.default.get("http://localhost:8000/polls/" + this.$route.params.id).then(function (_ref) {
+        var pollData = _ref.data;
+
+        _this.poll = pollData;
+      });
+    }
+  }
+};
+})()
+if (module.exports.__esModule) module.exports = module.exports.default
+var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
+if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"columns"},[_c('div',{staticClass:"column"},[_c('h4',[_vm._v(_vm._s(_vm.poll.title))])]),_c('div',{staticClass:"column"},_vm._l((_vm.poll.options),function(option){return _c('li',[_c('span',[_vm._v(_vm._s(option.title)+" ")]),_c('span',[_vm._v(_vm._s(option.voteCount)+" votes ")])])}))])}
+__vue__options__.staticRenderFns = []
+if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-eab2fc1c", __vue__options__)
+  } else {
+    hotAPI.rerender("data-v-eab2fc1c", __vue__options__)
+  }
+})()}
+}).apply(this, arguments);
+
+},{"axios":4,"vue":229,"vue-hot-reload-api":227}],236:[function(require,module,exports){
+_hmr["websocket:null"].initModule("src\\components\\Poll_List.vue", module);
+(function(){
+;(function(){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _axios = require("axios");
+
+var _axios2 = _interopRequireDefault(_axios);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
   data: function data() {
     return {
       polls: []
@@ -22838,36 +25273,40 @@ exports.default = {
   beforeMount: function beforeMount() {
     var _this = this;
 
-    _axios2.default.get("/polls").then(function (_ref) {
-      var pollData = _ref.data;
+    _axios2.default.get("http://localhost:8000/polls").then(function (_ref) {
+      var pollsData = _ref.data;
 
-      _this.polls = pollData;
+      _this.polls = pollsData;
     });
+  },
+
+  methods: {
+    getPopular: function getPopular() {}
   }
 };
 })()
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('ul',_vm._l((_vm.polls),function(poll){return _c('li',[_vm._v(" "+_vm._s(poll.title)+" ")])}))}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"box"},[_c('ul',_vm._l((_vm.polls),function(poll){return _c('li',{staticClass:"box is-unselectable"},[_c('router-link',{attrs:{"to":{name: 'poll', params: { id : poll.id }}}},[_vm._v(_vm._s(poll.title)+" ")])],1)}))])}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-62395f9f", __vue__options__)
+    hotAPI.createRecord("data-v-361d9aca", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-62395f9f", __vue__options__)
+    hotAPI.rerender("data-v-361d9aca", __vue__options__)
   }
 })()}
 }).apply(this, arguments);
 
-},{"axios":4,"vue":228,"vue-hot-reload-api":227}],1:[function(require,module,exports){
+},{"axios":4,"vue":229,"vue-hot-reload-api":227}],1:[function(require,module,exports){
 (function(global, _main, moduleDefs, cachedModules, _entries) {
   'use strict';
 
-  var moduleMeta = {"node_modules\\process\\browser.js":{"index":212,"hash":"CIpPJUFWW4RUpwRm0KLF","parents":["node_modules\\vue\\dist\\vue.runtime.common.js","node_modules\\socket.io-client\\node_modules\\debug\\browser.js","node_modules\\engine.io-client\\node_modules\\debug\\browser.js","node_modules\\axios\\lib\\adapters\\xhr.js","node_modules\\axios\\lib\\defaults.js"]},"node_modules\\browserify-hmr\\lib\\has.js":{"index":34,"hash":"Hky4QYVrU1+kFHIEuxPy","parents":["node_modules\\browserify-hmr\\lib\\str-set.js","node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\vue\\dist\\vue.runtime.common.js":{"index":228,"hash":"L/C+jVEjSFpxjK3a/Jzf","parents":["src\\poll_viewer.vue","src\\app.js"]},"node_modules\\parseuri\\index.js":{"index":211,"hash":"EzACpgP8IC8rgl7aVyRs","parents":["node_modules\\socket.io-client\\lib\\url.js","node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\socket.io-client\\lib\\url.js":{"index":217,"hash":"2e/RssAdMiqG5G1l8yhX","parents":["node_modules\\socket.io-client\\lib\\index.js"]},"node_modules\\socket.io-client\\node_modules\\debug\\browser.js":{"index":219,"hash":"Q9ewCSPMnJcAJRPsyk4r","parents":["node_modules\\socket.io-client\\lib\\url.js","node_modules\\socket.io-client\\lib\\socket.js","node_modules\\socket.io-client\\lib\\manager.js","node_modules\\socket.io-client\\lib\\index.js"]},"node_modules\\socket.io-client\\lib\\on.js":{"index":215,"hash":"tjRZyGGz5Q0MA2qS81HN","parents":["node_modules\\socket.io-client\\lib\\socket.js","node_modules\\socket.io-client\\lib\\manager.js"]},"node_modules\\socket.io-client\\node_modules\\component-emitter\\index.js":{"index":218,"hash":"oN00wp8CctwYNQv6ryzF","parents":["node_modules\\socket.io-client\\lib\\socket.js","node_modules\\socket.io-client\\lib\\manager.js"]},"node_modules\\component-bind\\index.js":{"index":36,"hash":"4yIcVw+afwUsnTQyI0a3","parents":["node_modules\\socket.io-client\\lib\\socket.js","node_modules\\socket.io-client\\lib\\manager.js"]},"node_modules\\to-array\\index.js":{"index":226,"hash":"2EoggafxX+GLXkXiaGjm","parents":["node_modules\\socket.io-client\\lib\\socket.js"]},"node_modules\\socket.io-parser\\is-buffer.js":{"index":224,"hash":"UJBXKAfBg/BkigSZbc3Z","parents":["node_modules\\socket.io-parser\\binary.js","node_modules\\socket.io-parser\\index.js"]},"node_modules\\component-emitter\\index.js":{"index":37,"hash":"0uL1LSa/mOj+Llu+HTZ7","parents":["node_modules\\socket.io-parser\\index.js"]},"node_modules\\json3\\lib\\json3.js":{"index":61,"hash":"LXnegdmM3ELMiM4tQmqu","parents":["node_modules\\socket.io-parser\\index.js"]},"node_modules\\backo2\\index.js":{"index":29,"hash":"L5ry3mfVEw1wgmx9Sa+q","parents":["node_modules\\socket.io-client\\lib\\manager.js"]},"node_modules\\indexof\\index.js":{"index":60,"hash":"8zMGV0j0ID5bUIeT7r+M","parents":["node_modules\\engine.io-client\\lib\\socket.js","node_modules\\socket.io-client\\lib\\manager.js"]},"node_modules\\browserify-hmr\\lib\\str-set.js":{"index":35,"hash":"lcrDmQK4uaqOqN+FV4/9","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\_baseZipObject.js":{"index":111,"hash":"YXMcZ83l88xZmDNehDaW","parents":["node_modules\\lodash\\zipObject.js"]},"node_modules\\lodash\\isArray.js":{"index":189,"hash":"aaUaNDXWFSVZ5STriBpj","parents":["node_modules\\lodash\\some.js","node_modules\\lodash\\map.js","node_modules\\lodash\\forEach.js","node_modules\\lodash\\_isKey.js","node_modules\\lodash\\_hasPath.js","node_modules\\lodash\\_arrayLikeKeys.js","node_modules\\lodash\\_baseToString.js","node_modules\\lodash\\_baseGetAllKeys.js","node_modules\\lodash\\_baseIsEqualDeep.js","node_modules\\lodash\\_castPath.js","node_modules\\lodash\\_baseIteratee.js","node_modules\\lodash\\filter.js"]},"node_modules\\lodash\\_arrayFilter.js":{"index":76,"hash":"Ev1suXdgsby5ZCXCkRms","parents":["node_modules\\lodash\\_getSymbols.js","node_modules\\lodash\\filter.js"]},"node_modules\\lodash\\_arraySome.js":{"index":80,"hash":"6MxplN9nt/AmANH1hnTa","parents":["node_modules\\lodash\\some.js","node_modules\\lodash\\_equalArrays.js"]},"node_modules\\lodash\\_arrayEach.js":{"index":75,"hash":"b9UG7X0uCjshbsKWnzke","parents":["node_modules\\lodash\\forEach.js"]},"node_modules\\lodash\\_isPrototype.js":{"index":144,"hash":"z7lefPE53MX7955LE/f6","parents":["node_modules\\lodash\\_baseKeys.js","node_modules\\lodash\\assign.js"]},"node_modules\\lodash\\_arrayMap.js":{"index":78,"hash":"WRdHK1dyumbtZQGeNdoR","parents":["node_modules\\lodash\\map.js","node_modules\\lodash\\_baseToString.js"]},"node_modules\\has-binary\\node_modules\\isarray\\index.js":{"index":58,"hash":"dKtews1S4sHvaZhZ+ceq","parents":["node_modules\\has-binary\\index.js"]},"node_modules\\has-binary\\index.js":{"index":57,"hash":"GofcXFXhXC0uVJvLAw+2","parents":["node_modules\\socket.io-client\\lib\\socket.js","node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\socket.io-client\\lib\\socket.js":{"index":216,"hash":"wNz1TmcWcSdV/fISvn75","parents":["node_modules\\socket.io-client\\lib\\manager.js","node_modules\\socket.io-client\\lib\\index.js"]},"node_modules\\socket.io-parser\\index.js":{"index":223,"hash":"zQr8NKW/h7J7hn1sTsRa","parents":["node_modules\\socket.io-client\\lib\\socket.js","node_modules\\socket.io-client\\lib\\manager.js","node_modules\\socket.io-client\\lib\\index.js"]},"node_modules\\socket.io-client\\node_modules\\ms\\index.js":{"index":221,"hash":"+i3MPFzut0mh8LK6NCY0","parents":["node_modules\\socket.io-client\\node_modules\\debug\\debug.js"]},"node_modules\\socket.io-client\\node_modules\\debug\\debug.js":{"index":220,"hash":"5FZHGx7z7kdbTIz7MyR0","parents":["node_modules\\socket.io-client\\node_modules\\debug\\browser.js"]},"node_modules\\socket.io-parser\\node_modules\\isarray\\index.js":{"index":225,"hash":"dKtews1S4sHvaZhZ+ceq","parents":["node_modules\\socket.io-parser\\binary.js"]},"node_modules\\socket.io-parser\\binary.js":{"index":222,"hash":"bAee8RukaXwuD/OeGN6F","parents":["node_modules\\socket.io-parser\\index.js"]},"node_modules\\lodash\\eq.js":{"index":181,"hash":"Be3fJIGKRC2SLwj96dmp","parents":["node_modules\\lodash\\_assignValue.js","node_modules\\lodash\\_isIterateeCall.js","node_modules\\lodash\\_equalByTag.js","node_modules\\lodash\\_assocIndexOf.js"]},"node_modules\\lodash\\_assignValue.js":{"index":81,"hash":"hmWN1NJKVbGe2ThBbBed","parents":["node_modules\\lodash\\zipObject.js","node_modules\\lodash\\_copyObject.js","node_modules\\lodash\\assign.js"]},"node_modules\\lodash\\_baseAssignValue.js":{"index":83,"hash":"UUmMep65Dt8mJru5Df0R","parents":["node_modules\\lodash\\_assignValue.js","node_modules\\lodash\\_copyObject.js","node_modules\\lodash\\mapValues.js"]},"node_modules\\lodash\\zipObject.js":{"index":207,"hash":"iztwVZmqQ7Y1i6QmGzx9","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\identity.js":{"index":187,"hash":"s1ZnXuz2CFxX2MXJyb7F","parents":["node_modules\\lodash\\_castFunction.js","node_modules\\lodash\\_baseSetToString.js","node_modules\\lodash\\_baseRest.js","node_modules\\lodash\\_baseIteratee.js"]},"node_modules\\lodash\\_baseFilter.js":{"index":85,"hash":"zIF8T84UwJp2X27nHnkJ","parents":["node_modules\\lodash\\filter.js"]},"node_modules\\lodash\\_baseEach.js":{"index":84,"hash":"1eAUgjpN0REUkkfZ9ZIc","parents":["node_modules\\lodash\\_baseFilter.js","node_modules\\lodash\\_baseSome.js","node_modules\\lodash\\_baseMap.js","node_modules\\lodash\\forEach.js"]},"node_modules\\lodash\\_baseSome.js":{"index":107,"hash":"/fx+wXc48GKu9ngo/G7R","parents":["node_modules\\lodash\\some.js"]},"node_modules\\lodash\\_isIndex.js":{"index":139,"hash":"SCdbG9iCDM1nxzb81i7D","parents":["node_modules\\lodash\\_isIterateeCall.js","node_modules\\lodash\\_hasPath.js","node_modules\\lodash\\_arrayLikeKeys.js"]},"node_modules\\lodash\\isObject.js":{"index":194,"hash":"H0M3JlacAn8wi5b/SH6J","parents":["node_modules\\lodash\\_isIterateeCall.js","node_modules\\lodash\\_isStrictComparable.js","node_modules\\lodash\\isFunction.js","node_modules\\lodash\\_baseIsNative.js"]},"node_modules\\lodash\\_isIterateeCall.js":{"index":140,"hash":"Q6Y/4ZLjPN2hD0x360UE","parents":["node_modules\\lodash\\some.js","node_modules\\lodash\\_createAssigner.js"]},"node_modules\\lodash\\isArrayLike.js":{"index":190,"hash":"/OCFIiBOK84sMLW6Tiiz","parents":["node_modules\\lodash\\_isIterateeCall.js","node_modules\\lodash\\_baseMap.js","node_modules\\lodash\\_createBaseEach.js","node_modules\\lodash\\keys.js","node_modules\\lodash\\assign.js"]},"node_modules\\lodash\\some.js":{"index":203,"hash":"o5R2DTe3L0fWtByoF6NK","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\_baseIteratee.js":{"index":98,"hash":"lFdaZihzm4HNQp2V6Bpv","parents":["node_modules\\lodash\\some.js","node_modules\\lodash\\map.js","node_modules\\lodash\\mapValues.js","node_modules\\lodash\\filter.js"]},"node_modules\\lodash\\_castFunction.js":{"index":113,"hash":"17Fkqb/JTOTfTCbTGPvs","parents":["node_modules\\lodash\\forEach.js","node_modules\\lodash\\forOwn.js"]},"node_modules\\lodash\\_copyObject.js":{"index":115,"hash":"VAzIjaU/1tssj67rWjf/","parents":["node_modules\\lodash\\assign.js"]},"node_modules\\lodash\\isLength.js":{"index":193,"hash":"bwSRxcpcTX/CbMowl+qa","parents":["node_modules\\lodash\\_hasPath.js","node_modules\\lodash\\isArrayLike.js","node_modules\\lodash\\_baseIsTypedArray.js"]},"node_modules\\lodash\\_baseMap.js":{"index":100,"hash":"d4dyLnzZcVXFzz5tCc58","parents":["node_modules\\lodash\\map.js"]},"node_modules\\lodash\\map.js":{"index":199,"hash":"Gq/1p28f40AzWuWuaNZr","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\ms\\index.js":{"index":208,"hash":"HanVKm5AkV6MOdHRAMCT","parents":["node_modules\\debug\\debug.js"]},"node_modules\\debug\\debug.js":{"index":40,"hash":"yqdR7nJc7wxIHzFDNzG+","parents":["node_modules\\debug\\browser.js"]},"node_modules\\debug\\browser.js":{"index":39,"hash":"S76q28f1VPJIcCtJn1eq","parents":["node_modules\\socket.io-parser\\index.js"]},"node_modules\\lodash\\_baseProperty.js":{"index":103,"hash":"kWjeI0xVLXmi/QD9uMSa","parents":["node_modules\\lodash\\property.js"]},"node_modules\\lodash\\_matchesStrictComparable.js":{"index":157,"hash":"+OqsD2+K9liTMiGDT3Y4","parents":["node_modules\\lodash\\_baseMatchesProperty.js","node_modules\\lodash\\_baseMatches.js"]},"node_modules\\lodash\\_createBaseEach.js":{"index":118,"hash":"j95laCMPOgHsNDIKPdsp","parents":["node_modules\\lodash\\_baseEach.js"]},"node_modules\\lodash\\_baseForOwn.js":{"index":87,"hash":"wsDmgTH4vz3dPZ0ucogL","parents":["node_modules\\lodash\\_baseEach.js","node_modules\\lodash\\forOwn.js","node_modules\\lodash\\mapValues.js"]},"node_modules\\lodash\\forEach.js":{"index":183,"hash":"jIBP8hzrl/TALmTGIzfp","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\_createBaseFor.js":{"index":119,"hash":"OeCELp37VytZuCN6Xtr+","parents":["node_modules\\lodash\\_baseFor.js"]},"node_modules\\lodash\\_baseFor.js":{"index":86,"hash":"aDRpv9Ysd3A0P68kJrwN","parents":["node_modules\\lodash\\_baseForOwn.js"]},"node_modules\\lodash\\keys.js":{"index":198,"hash":"AzwEiE+T6QrvlRtU3Z5w","parents":["node_modules\\lodash\\_baseForOwn.js","node_modules\\lodash\\_getMatchData.js","node_modules\\lodash\\assign.js","node_modules\\lodash\\_getAllKeys.js"]},"node_modules\\lodash\\forOwn.js":{"index":184,"hash":"Phxs3xQLZ6eXpzVwNsD+","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\_baseTimes.js":{"index":108,"hash":"vQVHAQOeEJCBfl2Pb7SH","parents":["node_modules\\lodash\\_arrayLikeKeys.js"]},"node_modules\\engine.io-parser\\lib\\keys.js":{"index":56,"hash":"oFyKNTA0twlyQVhVzp9n","parents":["node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\wtf-8\\wtf-8.js":{"index":229,"hash":"k6X632uKvHp6yK4OCn1D","parents":["node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\after\\index.js":{"index":2,"hash":"NzPfXWECmM8rW/6fdkcj","parents":["node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\arraybuffer.slice\\index.js":{"index":3,"hash":"RSb5Zx9CgX3adjzbvf/k","parents":["node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\blob\\index.js":{"index":31,"hash":"q7L6uHK9eN9yEvDVNxJw","parents":["node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\base64-arraybuffer\\lib\\base64-arraybuffer.js":{"index":30,"hash":"8XSfHUrJJCZLdLVRE4Xb","parents":["node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\engine.io-parser\\lib\\browser.js":{"index":55,"hash":"Oa/D6NTXKCm7QJPlaAXe","parents":["node_modules\\engine.io-client\\lib\\transport.js","node_modules\\engine.io-client\\lib\\transports\\websocket.js","node_modules\\engine.io-client\\lib\\transports\\polling.js","node_modules\\engine.io-client\\lib\\socket.js","node_modules\\engine.io-client\\lib\\index.js"]},"node_modules\\engine.io-client\\node_modules\\component-emitter\\index.js":{"index":51,"hash":"oN00wp8CctwYNQv6ryzF","parents":["node_modules\\engine.io-client\\lib\\transport.js","node_modules\\engine.io-client\\lib\\transports\\polling-xhr.js","node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\parseqs\\index.js":{"index":210,"hash":"bFhhlHvfi+om+FJQz11d","parents":["node_modules\\engine.io-client\\lib\\transports\\websocket.js","node_modules\\engine.io-client\\lib\\transports\\polling.js","node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\parsejson\\index.js":{"index":209,"hash":"wxV8aXhg9hh6MyO+FO0c","parents":["node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\lodash\\_toKey.js":{"index":177,"hash":"Fva7n1CrZYGNyjdfKbt3","parents":["node_modules\\lodash\\_hasPath.js","node_modules\\lodash\\_baseMatchesProperty.js","node_modules\\lodash\\_baseGet.js","node_modules\\lodash\\property.js"]},"node_modules\\lodash\\isSymbol.js":{"index":196,"hash":"uIIRbxfQUXadoioCe5+N","parents":["node_modules\\lodash\\_toKey.js","node_modules\\lodash\\_isKey.js","node_modules\\lodash\\_baseToString.js"]},"node_modules\\lodash\\_isStrictComparable.js":{"index":145,"hash":"rbCwfHyEpUrj4Z98kqqR","parents":["node_modules\\lodash\\_getMatchData.js","node_modules\\lodash\\_baseMatchesProperty.js"]},"node_modules\\lodash\\_baseHasIn.js":{"index":91,"hash":"+7Ad7hoG+3kwDHiM0tNn","parents":["node_modules\\lodash\\hasIn.js"]},"node_modules\\lodash\\isObjectLike.js":{"index":195,"hash":"qRO1rf+QsMbu/mjKbljZ","parents":["node_modules\\lodash\\isSymbol.js","node_modules\\lodash\\_baseIsArguments.js","node_modules\\lodash\\isArguments.js","node_modules\\lodash\\_baseIsTypedArray.js","node_modules\\lodash\\_baseIsEqual.js"]},"node_modules\\lodash\\get.js":{"index":185,"hash":"l8Xm0+dbrUDVfD0OVsKH","parents":["node_modules\\lodash\\_baseMatchesProperty.js"]},"node_modules\\lodash\\_baseGet.js":{"index":88,"hash":"EQWKE8NGYTKR53FHpqW6","parents":["node_modules\\lodash\\get.js","node_modules\\lodash\\_basePropertyDeep.js"]},"node_modules\\lodash\\_getMatchData.js":{"index":127,"hash":"QzO7KFepX9S2dqnbKqgt","parents":["node_modules\\lodash\\_baseMatches.js"]},"node_modules\\lodash\\_objectToString.js":{"index":162,"hash":"gcC0LTB2iC1gNln4H3WI","parents":["node_modules\\lodash\\_baseGetTag.js"]},"node_modules\\lodash\\_apply.js":{"index":74,"hash":"XKkzZTghrlK6WTNW2Mdh","parents":["node_modules\\lodash\\_overRest.js"]},"node_modules\\lodash\\_overRest.js":{"index":164,"hash":"iDNTQ1nLZv3jwCD1fhKA","parents":["node_modules\\lodash\\_baseRest.js"]},"node_modules\\lodash\\_shortOut.js":{"index":170,"hash":"IoUeHrEOcxqBK99ieVfK","parents":["node_modules\\lodash\\_setToString.js"]},"node_modules\\lodash\\_overArg.js":{"index":163,"hash":"DrVoGwBMK8ywtUgJJMWJ","parents":["node_modules\\lodash\\_nativeKeys.js"]},"node_modules\\lodash\\_nativeKeys.js":{"index":160,"hash":"Ksoa4f854F0/NggsS0Yh","parents":["node_modules\\lodash\\_baseKeys.js"]},"node_modules\\lodash\\_baseKeys.js":{"index":99,"hash":"kmg69OeKnhCzjV1WMGzu","parents":["node_modules\\lodash\\keys.js"]},"node_modules\\lodash\\_baseUnary.js":{"index":110,"hash":"cMYMf5ZcCBeLWbK9TQmI","parents":["node_modules\\lodash\\isTypedArray.js"]},"node_modules\\lodash\\stubFalse.js":{"index":205,"hash":"bsNH9caMXr7Pdt8ruFJt","parents":["node_modules\\lodash\\isBuffer.js"]},"node_modules\\lodash\\_getValue.js":{"index":132,"hash":"ECu3UgrdoHGLOVPWr5mD","parents":["node_modules\\lodash\\_getNative.js"]},"node_modules\\engine.io-client\\lib\\transport.js":{"index":44,"hash":"mp7fZlClWfLgH++23uT2","parents":["node_modules\\engine.io-client\\lib\\transports\\websocket.js","node_modules\\engine.io-client\\lib\\transports\\polling.js","node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\browser-resolve\\empty.js":{"index":32,"hash":"47DEQpj8HBSa+/TImW+5","parents":["node_modules\\engine.io-client\\lib\\transports\\websocket.js"]},"node_modules\\lodash\\_baseGetTag.js":{"index":90,"hash":"ydPbt27q/TAHvOyjdq/H","parents":["node_modules\\lodash\\isSymbol.js","node_modules\\lodash\\isFunction.js","node_modules\\lodash\\_baseIsArguments.js","node_modules\\lodash\\_baseIsTypedArray.js","node_modules\\lodash\\_getTag.js"]},"node_modules\\lodash\\_isKey.js":{"index":141,"hash":"D13Ok63JqktDADwmaeBu","parents":["node_modules\\lodash\\_baseMatchesProperty.js","node_modules\\lodash\\_castPath.js","node_modules\\lodash\\property.js"]},"node_modules\\lodash\\_hasPath.js":{"index":133,"hash":"H9ddOWkLPRuFYq8fwTEv","parents":["node_modules\\lodash\\hasIn.js"]},"node_modules\\lodash\\isArguments.js":{"index":188,"hash":"iJIbQ7nb4q+C1riPMj/b","parents":["node_modules\\lodash\\_hasPath.js","node_modules\\lodash\\_arrayLikeKeys.js"]},"node_modules\\lodash\\_castPath.js":{"index":114,"hash":"GgKBkmr1sBRSb1yd72qJ","parents":["node_modules\\lodash\\_hasPath.js","node_modules\\lodash\\_baseGet.js"]},"node_modules\\lodash\\hasIn.js":{"index":186,"hash":"o6j7gwruD7qKNbgMUe0j","parents":["node_modules\\lodash\\_baseMatchesProperty.js"]},"node_modules\\lodash\\_stackDelete.js":{"index":172,"hash":"LXafI5DDGP0wDwfpw8/U","parents":["node_modules\\lodash\\_Stack.js"]},"node_modules\\lodash\\_stackGet.js":{"index":173,"hash":"BoHW4uFMtND7Gi+JPdJf","parents":["node_modules\\lodash\\_Stack.js"]},"node_modules\\lodash\\_stackHas.js":{"index":174,"hash":"thY5y8jBCnJMfegnSD/V","parents":["node_modules\\lodash\\_Stack.js"]},"node_modules\\lodash\\_getRawTag.js":{"index":129,"hash":"MUL9l/iYFvZaG1vReTH3","parents":["node_modules\\lodash\\_baseGetTag.js"]},"node_modules\\lodash\\_Symbol.js":{"index":71,"hash":"I77NsH5p3PRVWpJOtN3+","parents":["node_modules\\lodash\\_getRawTag.js","node_modules\\lodash\\_baseGetTag.js","node_modules\\lodash\\_equalByTag.js","node_modules\\lodash\\_baseToString.js"]},"node_modules\\lodash\\_root.js":{"index":165,"hash":"MupxTyUFdnn90wmcJpPL","parents":["node_modules\\lodash\\_Symbol.js","node_modules\\lodash\\isBuffer.js","node_modules\\lodash\\_Uint8Array.js","node_modules\\lodash\\_Map.js","node_modules\\lodash\\_DataView.js","node_modules\\lodash\\_Promise.js","node_modules\\lodash\\_WeakMap.js","node_modules\\lodash\\_Set.js","node_modules\\lodash\\_coreJsData.js"]},"node_modules\\lodash\\isFunction.js":{"index":192,"hash":"0gysC+rTcZlhPWD04ANh","parents":["node_modules\\lodash\\isArrayLike.js","node_modules\\lodash\\_baseIsNative.js"]},"node_modules\\lodash\\constant.js":{"index":180,"hash":"E/D07UC1hh81w2R6/inn","parents":["node_modules\\lodash\\_baseSetToString.js"]},"node_modules\\lodash\\_baseSetToString.js":{"index":106,"hash":"iLxL219sz9iCOrPJz82a","parents":["node_modules\\lodash\\_setToString.js"]},"node_modules\\lodash\\_defineProperty.js":{"index":120,"hash":"0CbMU6r+0Uq1gikE9oNA","parents":["node_modules\\lodash\\_baseSetToString.js","node_modules\\lodash\\_baseAssignValue.js"]},"node_modules\\lodash\\_setToString.js":{"index":169,"hash":"hu7pnSotmEJV3Wx9OsJa","parents":["node_modules\\lodash\\_baseRest.js"]},"node_modules\\lodash\\_baseRest.js":{"index":105,"hash":"SUX2Uj3EprmvmkcHcoY/","parents":["node_modules\\lodash\\_createAssigner.js"]},"node_modules\\lodash\\_createAssigner.js":{"index":117,"hash":"JEqSu7xxpSyH40Y4GJ+V","parents":["node_modules\\lodash\\assign.js"]},"node_modules\\lodash\\_baseIsArguments.js":{"index":92,"hash":"caWdwJw13ty+5+1x9erg","parents":["node_modules\\lodash\\isArguments.js"]},"node_modules\\lodash\\_baseIsTypedArray.js":{"index":97,"hash":"cPl0GH9tkUCpceUV6gAk","parents":["node_modules\\lodash\\isTypedArray.js"]},"node_modules\\lodash\\_freeGlobal.js":{"index":124,"hash":"JkBVfFsfGmCLIMhuNXD1","parents":["node_modules\\lodash\\_nodeUtil.js","node_modules\\lodash\\_root.js"]},"node_modules\\lodash\\_nodeUtil.js":{"index":161,"hash":"a5iiX2Zkv5BTWgreCV8c","parents":["node_modules\\lodash\\isTypedArray.js"]},"node_modules\\lodash\\isTypedArray.js":{"index":197,"hash":"pNInOnl/2pKh0f1gDzOT","parents":["node_modules\\lodash\\_arrayLikeKeys.js","node_modules\\lodash\\_baseIsEqualDeep.js"]},"node_modules\\lodash\\isBuffer.js":{"index":191,"hash":"Uzhm1jNtW1f55Gsz24+8","parents":["node_modules\\lodash\\_arrayLikeKeys.js","node_modules\\lodash\\_baseIsEqualDeep.js"]},"node_modules\\lodash\\_arrayLikeKeys.js":{"index":77,"hash":"RWu/FT9WAfaDXPoucuiD","parents":["node_modules\\lodash\\keys.js"]},"node_modules\\lodash\\assign.js":{"index":179,"hash":"6X7UP3eqxcj6o2ias2ID","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\_toSource.js":{"index":178,"hash":"qhQsP8sNq2kil796yxWO","parents":["node_modules\\lodash\\_getTag.js","node_modules\\lodash\\_baseIsNative.js"]},"node_modules\\engine.io-client\\node_modules\\ms\\index.js":{"index":54,"hash":"+i3MPFzut0mh8LK6NCY0","parents":["node_modules\\engine.io-client\\node_modules\\debug\\debug.js"]},"node_modules\\engine.io-client\\node_modules\\debug\\debug.js":{"index":53,"hash":"5FZHGx7z7kdbTIz7MyR0","parents":["node_modules\\engine.io-client\\node_modules\\debug\\browser.js"]},"node_modules\\engine.io-client\\node_modules\\debug\\browser.js":{"index":52,"hash":"Q9ewCSPMnJcAJRPsyk4r","parents":["node_modules\\engine.io-client\\lib\\transports\\websocket.js","node_modules\\engine.io-client\\lib\\transports\\polling-xhr.js","node_modules\\engine.io-client\\lib\\transports\\polling.js","node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\has-cors\\index.js":{"index":59,"hash":"HwTb4UF/S089ZYA8hrRl","parents":["node_modules\\engine.io-client\\lib\\xmlhttprequest.js"]},"node_modules\\engine.io-client\\lib\\xmlhttprequest.js":{"index":50,"hash":"bdorKhduNvEqwPS8Ryma","parents":["node_modules\\engine.io-client\\lib\\transports\\polling-xhr.js","node_modules\\engine.io-client\\lib\\transports\\polling.js","node_modules\\engine.io-client\\lib\\transports\\index.js"]},"node_modules\\component-inherit\\index.js":{"index":38,"hash":"T0Fqch4d4akvlr8bh7lc","parents":["node_modules\\engine.io-client\\lib\\transports\\websocket.js","node_modules\\engine.io-client\\lib\\transports\\polling-xhr.js","node_modules\\engine.io-client\\lib\\transports\\polling.js","node_modules\\engine.io-client\\lib\\transports\\polling-jsonp.js"]},"node_modules\\yeast\\index.js":{"index":230,"hash":"ZM3+5w4l/D2f6x7svySF","parents":["node_modules\\engine.io-client\\lib\\transports\\websocket.js","node_modules\\engine.io-client\\lib\\transports\\polling.js"]},"node_modules\\engine.io-client\\lib\\transports\\websocket.js":{"index":49,"hash":"T9c/ggKNrbmnrHTUqZ8f","parents":["node_modules\\engine.io-client\\lib\\transports\\index.js"]},"node_modules\\engine.io-client\\lib\\transports\\polling-xhr.js":{"index":47,"hash":"4NXW28jfIrijZLTpANlT","parents":["node_modules\\engine.io-client\\lib\\transports\\index.js"]},"node_modules\\engine.io-client\\lib\\transports\\polling.js":{"index":48,"hash":"iR9NdLeAEs8vSYk/mMqT","parents":["node_modules\\engine.io-client\\lib\\transports\\polling-xhr.js","node_modules\\engine.io-client\\lib\\transports\\polling-jsonp.js"]},"node_modules\\lodash\\_setToArray.js":{"index":168,"hash":"gUyAUZoZS3v/gnhOBsLW","parents":["node_modules\\lodash\\_equalByTag.js"]},"node_modules\\lodash\\_mapToArray.js":{"index":156,"hash":"XUQTl0anVZnXaUOrmxD7","parents":["node_modules\\lodash\\_equalByTag.js"]},"node_modules\\lodash\\_cacheHas.js":{"index":112,"hash":"zwJaX7fkgHAdYeTtYO2G","parents":["node_modules\\lodash\\_equalArrays.js"]},"node_modules\\lodash\\_stackClear.js":{"index":171,"hash":"ibWAz8K0fFq6Bb0SS4B7","parents":["node_modules\\lodash\\_Stack.js"]},"node_modules\\lodash\\_ListCache.js":{"index":64,"hash":"KxC/aKLlcuOS+PWx1HyP","parents":["node_modules\\lodash\\_stackClear.js","node_modules\\lodash\\_mapCacheClear.js","node_modules\\lodash\\_stackSet.js","node_modules\\lodash\\_Stack.js"]},"node_modules\\lodash\\_listCacheClear.js":{"index":146,"hash":"CHLB/DjalyhgxdfpsCnW","parents":["node_modules\\lodash\\_ListCache.js"]},"node_modules\\engine.io-client\\lib\\transports\\polling-jsonp.js":{"index":46,"hash":"oEkG83OYr+yF9+O6KIZU","parents":["node_modules\\engine.io-client\\lib\\transports\\index.js"]},"node_modules\\engine.io-client\\lib\\transports\\index.js":{"index":45,"hash":"oFkQ4RgDHQJ8Ae5piZNj","parents":["node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\engine.io-client\\lib\\socket.js":{"index":43,"hash":"kT2TeXgVs1CyKphjblzf","parents":["node_modules\\engine.io-client\\lib\\index.js"]},"node_modules\\engine.io-client\\lib\\index.js":{"index":42,"hash":"G6QYuSNu0EcS+G5tR9NE","parents":["node_modules\\engine.io-client\\index.js"]},"node_modules\\engine.io-client\\index.js":{"index":41,"hash":"TaZh2zcEs5+SiarJ3uJN","parents":["node_modules\\socket.io-client\\lib\\manager.js"]},"node_modules\\socket.io-client\\lib\\manager.js":{"index":214,"hash":"ea8fbXBXjC66BIPF5Pam","parents":["node_modules\\socket.io-client\\lib\\index.js"]},"node_modules\\socket.io-client\\lib\\index.js":{"index":213,"hash":"s/15kyEjN0kWB5dYl/1h","parents":[]},"node_modules\\lodash\\_Uint8Array.js":{"index":72,"hash":"Zc6+hCmhnXc0Y6Asmckn","parents":["node_modules\\lodash\\_equalByTag.js"]},"node_modules\\lodash\\_equalByTag.js":{"index":122,"hash":"5sdsIGyCGshbuSoIxoXa","parents":["node_modules\\lodash\\_baseIsEqualDeep.js"]},"node_modules\\lodash\\_equalArrays.js":{"index":121,"hash":"FLnT7PvdDDobU/p0ty8u","parents":["node_modules\\lodash\\_equalByTag.js","node_modules\\lodash\\_baseIsEqualDeep.js"]},"node_modules\\lodash\\_Map.js":{"index":65,"hash":"aezyd9/dXR4WmT/cJk4B","parents":["node_modules\\lodash\\_getTag.js","node_modules\\lodash\\_mapCacheClear.js","node_modules\\lodash\\_stackSet.js"]},"node_modules\\lodash\\_getNative.js":{"index":128,"hash":"c5Ljj0yzzW4dPj+JomYZ","parents":["node_modules\\lodash\\_Map.js","node_modules\\lodash\\_DataView.js","node_modules\\lodash\\_Promise.js","node_modules\\lodash\\_WeakMap.js","node_modules\\lodash\\_Set.js","node_modules\\lodash\\_defineProperty.js","node_modules\\lodash\\_nativeCreate.js"]},"node_modules\\lodash\\_DataView.js":{"index":62,"hash":"N7jUbJyl5TusFXojFUuz","parents":["node_modules\\lodash\\_getTag.js"]},"node_modules\\lodash\\_Promise.js":{"index":67,"hash":"T4OR1RtxAOTYyC9xrI13","parents":["node_modules\\lodash\\_getTag.js"]},"node_modules\\lodash\\_WeakMap.js":{"index":73,"hash":"iuNSA30LsHH/h10pNsQ6","parents":["node_modules\\lodash\\_getTag.js"]},"node_modules\\lodash\\_Set.js":{"index":68,"hash":"BRcgMZjGEVgVhv4GaR6q","parents":["node_modules\\lodash\\_getTag.js"]},"node_modules\\lodash\\_getTag.js":{"index":131,"hash":"rZSqomckxeMx8IEK6dQG","parents":["node_modules\\lodash\\_baseIsEqualDeep.js"]},"node_modules\\lodash\\_setCacheHas.js":{"index":167,"hash":"aSivpixRq6mV4rYXkVzt","parents":["node_modules\\lodash\\_SetCache.js"]},"node_modules\\lodash\\_setCacheAdd.js":{"index":166,"hash":"yUbHLrOe8uWgSDa2EOmH","parents":["node_modules\\lodash\\_SetCache.js"]},"node_modules\\lodash\\_SetCache.js":{"index":69,"hash":"DKcn0VM+nqBtuxUGd3JS","parents":["node_modules\\lodash\\_equalArrays.js"]},"node_modules\\lodash\\_MapCache.js":{"index":66,"hash":"XbhLy8omrsa87tk7GrBc","parents":["node_modules\\lodash\\_SetCache.js","node_modules\\lodash\\memoize.js","node_modules\\lodash\\_stackSet.js"]},"node_modules\\lodash\\_listCacheGet.js":{"index":148,"hash":"SZAC3U/+BLssJw9WKbhb","parents":["node_modules\\lodash\\_ListCache.js"]},"node_modules\\lodash\\_assocIndexOf.js":{"index":82,"hash":"+YtyXqBKKXnwrSmv/2eU","parents":["node_modules\\lodash\\_listCacheGet.js","node_modules\\lodash\\_listCacheDelete.js","node_modules\\lodash\\_listCacheHas.js","node_modules\\lodash\\_listCacheSet.js"]},"node_modules\\lodash\\_listCacheDelete.js":{"index":147,"hash":"o3YDg6klGWlCS2PgzZy+","parents":["node_modules\\lodash\\_ListCache.js"]},"node_modules\\lodash\\_listCacheHas.js":{"index":149,"hash":"2tu2JqPxTVjaJm/WbeGw","parents":["node_modules\\lodash\\_ListCache.js"]},"node_modules\\lodash\\_coreJsData.js":{"index":116,"hash":"mWDHPw3O0bwyURVR4xz+","parents":["node_modules\\lodash\\_isMasked.js"]},"node_modules\\lodash\\_isMasked.js":{"index":143,"hash":"vCLMgg9t+moWMD2eCyQw","parents":["node_modules\\lodash\\_baseIsNative.js"]},"node_modules\\lodash\\_baseIsNative.js":{"index":96,"hash":"HplAaZjQs9R/bNG2XV0a","parents":["node_modules\\lodash\\_getNative.js"]},"node_modules\\lodash\\mapValues.js":{"index":200,"hash":"wGzYh7rOmnr5NbNf31Xh","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\_baseToString.js":{"index":109,"hash":"AnA1FrHVlMlph8hPfQFk","parents":["node_modules\\lodash\\toString.js"]},"node_modules\\lodash\\toString.js":{"index":206,"hash":"u6lNu4mjQVTOavtG4Hpr","parents":["node_modules\\lodash\\_castPath.js"]},"node_modules\\lodash\\_arrayPush.js":{"index":79,"hash":"/EQp182bKyQYd9DyjHRq","parents":["node_modules\\lodash\\_baseGetAllKeys.js"]},"node_modules\\lodash\\_baseGetAllKeys.js":{"index":89,"hash":"G/yC9530/ahn/dgrrslT","parents":["node_modules\\lodash\\_getAllKeys.js"]},"node_modules\\lodash\\stubArray.js":{"index":204,"hash":"hpV3ZtG8dCYBLEBt0XqS","parents":["node_modules\\lodash\\_getSymbols.js"]},"node_modules\\lodash\\_getSymbols.js":{"index":130,"hash":"PoUL82x850fu8UHfzZjw","parents":["node_modules\\lodash\\_getAllKeys.js"]},"node_modules\\lodash\\_getAllKeys.js":{"index":125,"hash":"3JYThcdBa6xFuMLEJAcf","parents":["node_modules\\lodash\\_equalObjects.js"]},"node_modules\\lodash\\_equalObjects.js":{"index":123,"hash":"Rc9NYU8R1s/bWUnUOXOJ","parents":["node_modules\\lodash\\_baseIsEqualDeep.js"]},"node_modules\\lodash\\_baseIsEqualDeep.js":{"index":94,"hash":"a5Qj+02BWo5995Nobe+v","parents":["node_modules\\lodash\\_baseIsEqual.js"]},"node_modules\\lodash\\_Stack.js":{"index":70,"hash":"/wytiRFlfgg4krF9Qz6a","parents":["node_modules\\lodash\\_baseIsEqualDeep.js","node_modules\\lodash\\_baseIsMatch.js"]},"node_modules\\lodash\\_baseIsEqual.js":{"index":93,"hash":"IfD9jeZw2S45+s0BZ1L3","parents":["node_modules\\lodash\\_baseMatchesProperty.js","node_modules\\lodash\\_baseIsMatch.js"]},"node_modules\\lodash\\_baseMatchesProperty.js":{"index":102,"hash":"JUSg/+I63FvjCRBMWDG8","parents":["node_modules\\lodash\\_baseIteratee.js"]},"node_modules\\lodash\\_listCacheSet.js":{"index":150,"hash":"dVcwdgHP8vQHHPnX+pql","parents":["node_modules\\lodash\\_ListCache.js"]},"node_modules\\lodash\\_mapCacheGet.js":{"index":153,"hash":"dglUiNgT6mYn3/TLOqMD","parents":["node_modules\\lodash\\_MapCache.js"]},"node_modules\\lodash\\_getMapData.js":{"index":126,"hash":"ZdeLudBY90L64kFsAIQL","parents":["node_modules\\lodash\\_mapCacheGet.js","node_modules\\lodash\\_mapCacheHas.js","node_modules\\lodash\\_mapCacheSet.js","node_modules\\lodash\\_mapCacheDelete.js"]},"node_modules\\lodash\\_mapCacheHas.js":{"index":154,"hash":"S0HdvBVxOySQIIMRmtf0","parents":["node_modules\\lodash\\_MapCache.js"]},"node_modules\\lodash\\_mapCacheSet.js":{"index":155,"hash":"Rk8Cf6ZeJaOWzM2bXiED","parents":["node_modules\\lodash\\_MapCache.js"]},"node_modules\\lodash\\memoize.js":{"index":201,"hash":"avTk3nhklvyvSxLNiUwd","parents":["node_modules\\lodash\\_memoizeCapped.js"]},"node_modules\\lodash\\_memoizeCapped.js":{"index":158,"hash":"HacnckK3nw4vtSYbX7i/","parents":["node_modules\\lodash\\_stringToPath.js"]},"node_modules\\lodash\\_stringToPath.js":{"index":176,"hash":"nTlFZDUaGsY0w/l3Daka","parents":["node_modules\\lodash\\_castPath.js"]},"node_modules\\lodash\\_basePropertyDeep.js":{"index":104,"hash":"Zfrh9AQz1Ry2yPu2pByv","parents":["node_modules\\lodash\\property.js"]},"node_modules\\lodash\\property.js":{"index":202,"hash":"2hJfadtQXM/U3NbWpzGR","parents":["node_modules\\lodash\\_baseIteratee.js"]},"node_modules\\lodash\\_isKeyable.js":{"index":142,"hash":"NQsK9iVUkTA1EsHPdaK1","parents":["node_modules\\lodash\\_getMapData.js"]},"node_modules\\lodash\\_mapCacheDelete.js":{"index":152,"hash":"Y2RLt8NGt0Im9c9uXXcS","parents":["node_modules\\lodash\\_MapCache.js"]},"node_modules\\lodash\\_hashDelete.js":{"index":135,"hash":"CmVwjIdw4ONOgfUyiaMT","parents":["node_modules\\lodash\\_Hash.js"]},"node_modules\\lodash\\_hashClear.js":{"index":134,"hash":"2feZ9hRgUzW8Djw0JrqE","parents":["node_modules\\lodash\\_Hash.js"]},"node_modules\\lodash\\_nativeCreate.js":{"index":159,"hash":"QnEWfxsVWqcrQRLl5xaD","parents":["node_modules\\lodash\\_hashClear.js","node_modules\\lodash\\_hashHas.js","node_modules\\lodash\\_hashSet.js","node_modules\\lodash\\_hashGet.js"]},"node_modules\\lodash\\_hashHas.js":{"index":137,"hash":"fr70n7H4vKHBcQoEXEpO","parents":["node_modules\\lodash\\_Hash.js"]},"node_modules\\lodash\\_hashSet.js":{"index":138,"hash":"GANy9myYOl9CQUX6Hi+w","parents":["node_modules\\lodash\\_Hash.js"]},"node_modules\\lodash\\_hashGet.js":{"index":136,"hash":"dc0CR5GuEuyIhxwkyCwj","parents":["node_modules\\lodash\\_Hash.js"]},"node_modules\\lodash\\_Hash.js":{"index":63,"hash":"hTyKHFwLDhT8hzgE2zlD","parents":["node_modules\\lodash\\_mapCacheClear.js"]},"node_modules\\lodash\\_mapCacheClear.js":{"index":151,"hash":"6D5+Bp90PNozl9Vr8wu2","parents":["node_modules\\lodash\\_MapCache.js"]},"node_modules\\lodash\\_stackSet.js":{"index":175,"hash":"rFq/zAhyEaIffTCH45Gf","parents":["node_modules\\lodash\\_Stack.js"]},"node_modules\\lodash\\_baseIsMatch.js":{"index":95,"hash":"yrF79Y2F5RiVXHPZgzhK","parents":["node_modules\\lodash\\_baseMatches.js"]},"node_modules\\lodash\\_baseMatches.js":{"index":101,"hash":"eM6GzX+YFfSSvWUut1RW","parents":["node_modules\\lodash\\_baseIteratee.js"]},"node_modules\\lodash\\filter.js":{"index":182,"hash":"xHkJOO00v5Ew3tJEbs2H","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\browserify-hmr\\inc\\index.js":{"index":33,"hash":"MGH8WksqsFtrirdPnhgt","parents":[]},"node_modules\\axios\\lib\\helpers\\spread.js":{"index":27,"hash":"tRmNydzwpR2+f97xOT2R","parents":["node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\helpers\\bind.js":{"index":18,"hash":"7qz63sWc/avguoKZp/Tj","parents":["node_modules\\axios\\lib\\utils.js","node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\cancel\\isCancel.js":{"index":9,"hash":"I1e5Pa4+rYUPP2HOlgqQ","parents":["node_modules\\axios\\lib\\core\\dispatchRequest.js","node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\cancel\\Cancel.js":{"index":7,"hash":"H5p8YXHwES9hf4g5J2Ix","parents":["node_modules\\axios\\lib\\cancel\\CancelToken.js","node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\utils.js":{"index":28,"hash":"iAJPkkHOoTQ0lV9mgUDF","parents":["node_modules\\axios\\lib\\core\\InterceptorManager.js","node_modules\\axios\\lib\\helpers\\normalizeHeaderName.js","node_modules\\axios\\lib\\core\\transformData.js","node_modules\\axios\\lib\\core\\dispatchRequest.js","node_modules\\axios\\lib\\core\\Axios.js","node_modules\\axios\\lib\\helpers\\buildURL.js","node_modules\\axios\\lib\\helpers\\parseHeaders.js","node_modules\\axios\\lib\\helpers\\isURLSameOrigin.js","node_modules\\axios\\lib\\helpers\\cookies.js","node_modules\\axios\\lib\\adapters\\xhr.js","node_modules\\axios\\lib\\defaults.js","node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\cancel\\CancelToken.js":{"index":8,"hash":"FHNSerik6mTW7UK588b6","parents":["node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\helpers\\isAbsoluteURL.js":{"index":23,"hash":"vVWCDPr+MX6lpqXv8pbV","parents":["node_modules\\axios\\lib\\core\\Axios.js"]},"node_modules\\axios\\lib\\helpers\\combineURLs.js":{"index":21,"hash":"WcVx/KakaTKJx+B4Oqlg","parents":["node_modules\\axios\\lib\\core\\Axios.js"]},"node_modules\\axios\\lib\\core\\InterceptorManager.js":{"index":11,"hash":"eKcTD61ZQvp+fRuqC8MM","parents":["node_modules\\axios\\lib\\core\\Axios.js"]},"node_modules\\axios\\lib\\helpers\\btoa.js":{"index":19,"hash":"50rlLXO/5hRkYfgSsE36","parents":["node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\helpers\\normalizeHeaderName.js":{"index":25,"hash":"ZOnEbUQ4gAqyOWXM/MJz","parents":["node_modules\\axios\\lib\\defaults.js"]},"node_modules\\axios\\lib\\core\\transformData.js":{"index":16,"hash":"ogPxBrH/+f25p5LI/dDI","parents":["node_modules\\axios\\lib\\core\\dispatchRequest.js"]},"node_modules\\axios\\lib\\core\\dispatchRequest.js":{"index":13,"hash":"HtiwIy/HS1A24N/qgh+i","parents":["node_modules\\axios\\lib\\core\\Axios.js"]},"node_modules\\axios\\lib\\defaults.js":{"index":17,"hash":"qltyCvzMIprq5m6tzw01","parents":["node_modules\\axios\\lib\\core\\dispatchRequest.js","node_modules\\axios\\lib\\core\\Axios.js","node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\core\\Axios.js":{"index":10,"hash":"Y6SCtUi9Dxs62r8mPrVj","parents":["node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\helpers\\buildURL.js":{"index":20,"hash":"/NGEKCSjJtQmLL9YgQ19","parents":["node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\helpers\\parseHeaders.js":{"index":26,"hash":"RSaxrIhXzzKyKZUYYMuV","parents":["node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\core\\settle.js":{"index":15,"hash":"oBiMdGYIWstYzLllkvdc","parents":["node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\core\\createError.js":{"index":12,"hash":"gewqDvLDQxuCJgfCZVcg","parents":["node_modules\\axios\\lib\\core\\settle.js","node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\helpers\\isURLSameOrigin.js":{"index":24,"hash":"Q23gyeHuCUz6urO9LiH6","parents":["node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\helpers\\cookies.js":{"index":22,"hash":"bosLflNojvUQNanxX8Ou","parents":["node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\core\\enhanceError.js":{"index":14,"hash":"jQgfNs13AFaI52OMk6Uz","parents":["node_modules\\axios\\lib\\core\\createError.js"]},"node_modules\\axios\\lib\\adapters\\xhr.js":{"index":5,"hash":"aAqW8YO7v3QEaiiYtYs7","parents":["node_modules\\axios\\lib\\defaults.js","node_modules\\axios\\lib\\defaults.js"]},"node_modules\\axios\\lib\\axios.js":{"index":6,"hash":"HIDoC1nh7uFupiQwyIon","parents":["node_modules\\axios\\index.js"]},"node_modules\\axios\\index.js":{"index":4,"hash":"i3hbSNtq55ltbO/Ev0Ye","parents":["src\\poll_viewer.vue"]},"node_modules\\vue-hot-reload-api\\index.js":{"index":227,"hash":"btzxwqv1xQdbYJJJ62am","parents":["src\\poll_viewer.vue"]},"src\\poll_viewer.vue":{"index":232,"hash":"N+wPctuWB0FIbiCQKMDD","parents":["src\\app.js"]},"src\\app.js":{"index":231,"hash":"peEGgqiGETAjOAwuHOFp","parents":[]}};
+  var moduleMeta = {"node_modules\\process\\browser.js":{"index":212,"hash":"CIpPJUFWW4RUpwRm0KLF","parents":["node_modules\\vue\\dist\\vue.runtime.common.js","node_modules\\vue-router\\dist\\vue-router.common.js","node_modules\\socket.io-client\\node_modules\\debug\\browser.js","node_modules\\engine.io-client\\node_modules\\debug\\browser.js","node_modules\\axios\\lib\\adapters\\xhr.js","node_modules\\axios\\lib\\defaults.js"]},"node_modules\\browserify-hmr\\lib\\has.js":{"index":34,"hash":"Hky4QYVrU1+kFHIEuxPy","parents":["node_modules\\browserify-hmr\\lib\\str-set.js","node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\vue\\dist\\vue.runtime.common.js":{"index":229,"hash":"L/C+jVEjSFpxjK3a/Jzf","parents":["src\\components\\Login.vue","src\\components\\App.vue","src\\components\\Poll.vue","src\\components\\Poll_List.vue","src\\app.js"]},"node_modules\\vue-router\\dist\\vue-router.common.js":{"index":228,"hash":"1KkdwVzG748tArPTT36V","parents":["src\\app.js"]},"node_modules\\parseuri\\index.js":{"index":211,"hash":"EzACpgP8IC8rgl7aVyRs","parents":["node_modules\\socket.io-client\\lib\\url.js","node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\socket.io-client\\lib\\url.js":{"index":217,"hash":"2e/RssAdMiqG5G1l8yhX","parents":["node_modules\\socket.io-client\\lib\\index.js"]},"node_modules\\socket.io-client\\node_modules\\debug\\browser.js":{"index":219,"hash":"Q9ewCSPMnJcAJRPsyk4r","parents":["node_modules\\socket.io-client\\lib\\url.js","node_modules\\socket.io-client\\lib\\socket.js","node_modules\\socket.io-client\\lib\\manager.js","node_modules\\socket.io-client\\lib\\index.js"]},"node_modules\\socket.io-client\\lib\\on.js":{"index":215,"hash":"tjRZyGGz5Q0MA2qS81HN","parents":["node_modules\\socket.io-client\\lib\\socket.js","node_modules\\socket.io-client\\lib\\manager.js"]},"node_modules\\socket.io-client\\node_modules\\component-emitter\\index.js":{"index":218,"hash":"oN00wp8CctwYNQv6ryzF","parents":["node_modules\\socket.io-client\\lib\\socket.js","node_modules\\socket.io-client\\lib\\manager.js"]},"node_modules\\component-bind\\index.js":{"index":36,"hash":"4yIcVw+afwUsnTQyI0a3","parents":["node_modules\\socket.io-client\\lib\\socket.js","node_modules\\socket.io-client\\lib\\manager.js"]},"node_modules\\to-array\\index.js":{"index":226,"hash":"2EoggafxX+GLXkXiaGjm","parents":["node_modules\\socket.io-client\\lib\\socket.js"]},"node_modules\\socket.io-parser\\is-buffer.js":{"index":224,"hash":"UJBXKAfBg/BkigSZbc3Z","parents":["node_modules\\socket.io-parser\\binary.js","node_modules\\socket.io-parser\\index.js"]},"node_modules\\component-emitter\\index.js":{"index":37,"hash":"0uL1LSa/mOj+Llu+HTZ7","parents":["node_modules\\socket.io-parser\\index.js"]},"node_modules\\json3\\lib\\json3.js":{"index":61,"hash":"LXnegdmM3ELMiM4tQmqu","parents":["node_modules\\socket.io-parser\\index.js"]},"node_modules\\indexof\\index.js":{"index":60,"hash":"8zMGV0j0ID5bUIeT7r+M","parents":["node_modules\\engine.io-client\\lib\\socket.js","node_modules\\socket.io-client\\lib\\manager.js"]},"node_modules\\backo2\\index.js":{"index":29,"hash":"L5ry3mfVEw1wgmx9Sa+q","parents":["node_modules\\socket.io-client\\lib\\manager.js"]},"node_modules\\browserify-hmr\\lib\\str-set.js":{"index":35,"hash":"lcrDmQK4uaqOqN+FV4/9","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\_baseZipObject.js":{"index":111,"hash":"YXMcZ83l88xZmDNehDaW","parents":["node_modules\\lodash\\zipObject.js"]},"node_modules\\lodash\\isArray.js":{"index":189,"hash":"aaUaNDXWFSVZ5STriBpj","parents":["node_modules\\lodash\\some.js","node_modules\\lodash\\filter.js","node_modules\\lodash\\forEach.js","node_modules\\lodash\\_isKey.js","node_modules\\lodash\\_hasPath.js","node_modules\\lodash\\_arrayLikeKeys.js","node_modules\\lodash\\_baseToString.js","node_modules\\lodash\\_baseGetAllKeys.js","node_modules\\lodash\\_baseIsEqualDeep.js","node_modules\\lodash\\_castPath.js","node_modules\\lodash\\_baseIteratee.js","node_modules\\lodash\\map.js"]},"node_modules\\lodash\\_arrayMap.js":{"index":78,"hash":"WRdHK1dyumbtZQGeNdoR","parents":["node_modules\\lodash\\_baseToString.js","node_modules\\lodash\\map.js"]},"node_modules\\lodash\\_arraySome.js":{"index":80,"hash":"6MxplN9nt/AmANH1hnTa","parents":["node_modules\\lodash\\some.js","node_modules\\lodash\\_equalArrays.js"]},"node_modules\\lodash\\_arrayEach.js":{"index":75,"hash":"b9UG7X0uCjshbsKWnzke","parents":["node_modules\\lodash\\forEach.js"]},"node_modules\\lodash\\_isPrototype.js":{"index":144,"hash":"z7lefPE53MX7955LE/f6","parents":["node_modules\\lodash\\_baseKeys.js","node_modules\\lodash\\assign.js"]},"node_modules\\lodash\\_arrayFilter.js":{"index":76,"hash":"Ev1suXdgsby5ZCXCkRms","parents":["node_modules\\lodash\\filter.js","node_modules\\lodash\\_getSymbols.js"]},"node_modules\\vue-hot-reload-api\\index.js":{"index":227,"hash":"btzxwqv1xQdbYJJJ62am","parents":["src\\components\\Login.vue","src\\components\\App.vue","src\\components\\Poll.vue","src\\components\\Poll_List.vue"]},"src\\components\\Login.vue":{"index":234,"hash":"NDrfjxp/YZ3y8uxXbSbp","parents":["src\\app.js"]},"src\\components\\App.vue":{"index":233,"hash":"/EBFDknTnrWcJ88PQC6O","parents":["src\\app.js"]},"node_modules\\has-binary\\node_modules\\isarray\\index.js":{"index":58,"hash":"dKtews1S4sHvaZhZ+ceq","parents":["node_modules\\has-binary\\index.js"]},"node_modules\\has-binary\\index.js":{"index":57,"hash":"GofcXFXhXC0uVJvLAw+2","parents":["node_modules\\socket.io-client\\lib\\socket.js","node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\socket.io-client\\lib\\socket.js":{"index":216,"hash":"wNz1TmcWcSdV/fISvn75","parents":["node_modules\\socket.io-client\\lib\\manager.js","node_modules\\socket.io-client\\lib\\index.js"]},"node_modules\\socket.io-parser\\index.js":{"index":223,"hash":"zQr8NKW/h7J7hn1sTsRa","parents":["node_modules\\socket.io-client\\lib\\socket.js","node_modules\\socket.io-client\\lib\\manager.js","node_modules\\socket.io-client\\lib\\index.js"]},"node_modules\\socket.io-client\\node_modules\\ms\\index.js":{"index":221,"hash":"+i3MPFzut0mh8LK6NCY0","parents":["node_modules\\socket.io-client\\node_modules\\debug\\debug.js"]},"node_modules\\socket.io-client\\node_modules\\debug\\debug.js":{"index":220,"hash":"5FZHGx7z7kdbTIz7MyR0","parents":["node_modules\\socket.io-client\\node_modules\\debug\\browser.js"]},"node_modules\\socket.io-parser\\node_modules\\isarray\\index.js":{"index":225,"hash":"dKtews1S4sHvaZhZ+ceq","parents":["node_modules\\socket.io-parser\\binary.js"]},"node_modules\\socket.io-parser\\binary.js":{"index":222,"hash":"bAee8RukaXwuD/OeGN6F","parents":["node_modules\\socket.io-parser\\index.js"]},"node_modules\\lodash\\eq.js":{"index":181,"hash":"Be3fJIGKRC2SLwj96dmp","parents":["node_modules\\lodash\\_assignValue.js","node_modules\\lodash\\_isIterateeCall.js","node_modules\\lodash\\_equalByTag.js","node_modules\\lodash\\_assocIndexOf.js"]},"node_modules\\lodash\\_assignValue.js":{"index":81,"hash":"hmWN1NJKVbGe2ThBbBed","parents":["node_modules\\lodash\\zipObject.js","node_modules\\lodash\\_copyObject.js","node_modules\\lodash\\assign.js"]},"node_modules\\lodash\\_baseAssignValue.js":{"index":83,"hash":"UUmMep65Dt8mJru5Df0R","parents":["node_modules\\lodash\\_assignValue.js","node_modules\\lodash\\_copyObject.js","node_modules\\lodash\\mapValues.js"]},"node_modules\\lodash\\zipObject.js":{"index":207,"hash":"iztwVZmqQ7Y1i6QmGzx9","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\identity.js":{"index":187,"hash":"s1ZnXuz2CFxX2MXJyb7F","parents":["node_modules\\lodash\\_castFunction.js","node_modules\\lodash\\_baseSetToString.js","node_modules\\lodash\\_baseRest.js","node_modules\\lodash\\_baseIteratee.js"]},"node_modules\\lodash\\_baseMap.js":{"index":100,"hash":"d4dyLnzZcVXFzz5tCc58","parents":["node_modules\\lodash\\map.js"]},"node_modules\\lodash\\isArrayLike.js":{"index":190,"hash":"/OCFIiBOK84sMLW6Tiiz","parents":["node_modules\\lodash\\_baseMap.js","node_modules\\lodash\\_isIterateeCall.js","node_modules\\lodash\\_createBaseEach.js","node_modules\\lodash\\keys.js","node_modules\\lodash\\assign.js"]},"node_modules\\lodash\\_baseEach.js":{"index":84,"hash":"1eAUgjpN0REUkkfZ9ZIc","parents":["node_modules\\lodash\\_baseMap.js","node_modules\\lodash\\_baseSome.js","node_modules\\lodash\\_baseFilter.js","node_modules\\lodash\\forEach.js"]},"node_modules\\lodash\\_baseSome.js":{"index":107,"hash":"/fx+wXc48GKu9ngo/G7R","parents":["node_modules\\lodash\\some.js"]},"node_modules\\lodash\\_isIndex.js":{"index":139,"hash":"SCdbG9iCDM1nxzb81i7D","parents":["node_modules\\lodash\\_isIterateeCall.js","node_modules\\lodash\\_hasPath.js","node_modules\\lodash\\_arrayLikeKeys.js"]},"node_modules\\lodash\\isObject.js":{"index":194,"hash":"H0M3JlacAn8wi5b/SH6J","parents":["node_modules\\lodash\\_isIterateeCall.js","node_modules\\lodash\\_isStrictComparable.js","node_modules\\lodash\\isFunction.js","node_modules\\lodash\\_baseIsNative.js"]},"node_modules\\lodash\\_isIterateeCall.js":{"index":140,"hash":"Q6Y/4ZLjPN2hD0x360UE","parents":["node_modules\\lodash\\some.js","node_modules\\lodash\\_createAssigner.js"]},"node_modules\\lodash\\some.js":{"index":203,"hash":"o5R2DTe3L0fWtByoF6NK","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\_baseIteratee.js":{"index":98,"hash":"lFdaZihzm4HNQp2V6Bpv","parents":["node_modules\\lodash\\some.js","node_modules\\lodash\\filter.js","node_modules\\lodash\\mapValues.js","node_modules\\lodash\\map.js"]},"node_modules\\lodash\\_castFunction.js":{"index":113,"hash":"17Fkqb/JTOTfTCbTGPvs","parents":["node_modules\\lodash\\forEach.js","node_modules\\lodash\\forOwn.js"]},"node_modules\\lodash\\_copyObject.js":{"index":115,"hash":"VAzIjaU/1tssj67rWjf/","parents":["node_modules\\lodash\\assign.js"]},"node_modules\\lodash\\isLength.js":{"index":193,"hash":"bwSRxcpcTX/CbMowl+qa","parents":["node_modules\\lodash\\_hasPath.js","node_modules\\lodash\\isArrayLike.js","node_modules\\lodash\\_baseIsTypedArray.js"]},"node_modules\\lodash\\_baseFilter.js":{"index":85,"hash":"zIF8T84UwJp2X27nHnkJ","parents":["node_modules\\lodash\\filter.js"]},"node_modules\\lodash\\filter.js":{"index":182,"hash":"xHkJOO00v5Ew3tJEbs2H","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\ms\\index.js":{"index":208,"hash":"HanVKm5AkV6MOdHRAMCT","parents":["node_modules\\debug\\debug.js"]},"node_modules\\debug\\debug.js":{"index":40,"hash":"yqdR7nJc7wxIHzFDNzG+","parents":["node_modules\\debug\\browser.js"]},"node_modules\\debug\\browser.js":{"index":39,"hash":"S76q28f1VPJIcCtJn1eq","parents":["node_modules\\socket.io-parser\\index.js"]},"node_modules\\lodash\\_baseProperty.js":{"index":103,"hash":"kWjeI0xVLXmi/QD9uMSa","parents":["node_modules\\lodash\\property.js"]},"node_modules\\lodash\\_matchesStrictComparable.js":{"index":157,"hash":"+OqsD2+K9liTMiGDT3Y4","parents":["node_modules\\lodash\\_baseMatchesProperty.js","node_modules\\lodash\\_baseMatches.js"]},"node_modules\\lodash\\_createBaseEach.js":{"index":118,"hash":"j95laCMPOgHsNDIKPdsp","parents":["node_modules\\lodash\\_baseEach.js"]},"node_modules\\lodash\\_baseForOwn.js":{"index":87,"hash":"wsDmgTH4vz3dPZ0ucogL","parents":["node_modules\\lodash\\_baseEach.js","node_modules\\lodash\\forOwn.js","node_modules\\lodash\\mapValues.js"]},"node_modules\\lodash\\forEach.js":{"index":183,"hash":"jIBP8hzrl/TALmTGIzfp","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\_createBaseFor.js":{"index":119,"hash":"OeCELp37VytZuCN6Xtr+","parents":["node_modules\\lodash\\_baseFor.js"]},"node_modules\\lodash\\_baseFor.js":{"index":86,"hash":"aDRpv9Ysd3A0P68kJrwN","parents":["node_modules\\lodash\\_baseForOwn.js"]},"node_modules\\lodash\\keys.js":{"index":198,"hash":"AzwEiE+T6QrvlRtU3Z5w","parents":["node_modules\\lodash\\_baseForOwn.js","node_modules\\lodash\\_getMatchData.js","node_modules\\lodash\\assign.js","node_modules\\lodash\\_getAllKeys.js"]},"node_modules\\lodash\\forOwn.js":{"index":184,"hash":"Phxs3xQLZ6eXpzVwNsD+","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\_baseTimes.js":{"index":108,"hash":"vQVHAQOeEJCBfl2Pb7SH","parents":["node_modules\\lodash\\_arrayLikeKeys.js"]},"node_modules\\axios\\lib\\cancel\\isCancel.js":{"index":9,"hash":"I1e5Pa4+rYUPP2HOlgqQ","parents":["node_modules\\axios\\lib\\core\\dispatchRequest.js","node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\cancel\\Cancel.js":{"index":7,"hash":"H5p8YXHwES9hf4g5J2Ix","parents":["node_modules\\axios\\lib\\cancel\\CancelToken.js","node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\helpers\\spread.js":{"index":27,"hash":"tRmNydzwpR2+f97xOT2R","parents":["node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\helpers\\bind.js":{"index":18,"hash":"7qz63sWc/avguoKZp/Tj","parents":["node_modules\\axios\\lib\\utils.js","node_modules\\axios\\lib\\axios.js"]},"node_modules\\engine.io-parser\\lib\\keys.js":{"index":56,"hash":"oFyKNTA0twlyQVhVzp9n","parents":["node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\wtf-8\\wtf-8.js":{"index":230,"hash":"k6X632uKvHp6yK4OCn1D","parents":["node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\arraybuffer.slice\\index.js":{"index":3,"hash":"RSb5Zx9CgX3adjzbvf/k","parents":["node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\after\\index.js":{"index":2,"hash":"NzPfXWECmM8rW/6fdkcj","parents":["node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\blob\\index.js":{"index":31,"hash":"q7L6uHK9eN9yEvDVNxJw","parents":["node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\base64-arraybuffer\\lib\\base64-arraybuffer.js":{"index":30,"hash":"8XSfHUrJJCZLdLVRE4Xb","parents":["node_modules\\engine.io-parser\\lib\\browser.js"]},"node_modules\\engine.io-parser\\lib\\browser.js":{"index":55,"hash":"Oa/D6NTXKCm7QJPlaAXe","parents":["node_modules\\engine.io-client\\lib\\transport.js","node_modules\\engine.io-client\\lib\\transports\\websocket.js","node_modules\\engine.io-client\\lib\\transports\\polling.js","node_modules\\engine.io-client\\lib\\socket.js","node_modules\\engine.io-client\\lib\\index.js"]},"node_modules\\engine.io-client\\node_modules\\component-emitter\\index.js":{"index":51,"hash":"oN00wp8CctwYNQv6ryzF","parents":["node_modules\\engine.io-client\\lib\\transport.js","node_modules\\engine.io-client\\lib\\transports\\polling-xhr.js","node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\parsejson\\index.js":{"index":209,"hash":"wxV8aXhg9hh6MyO+FO0c","parents":["node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\parseqs\\index.js":{"index":210,"hash":"bFhhlHvfi+om+FJQz11d","parents":["node_modules\\engine.io-client\\lib\\transports\\websocket.js","node_modules\\engine.io-client\\lib\\transports\\polling.js","node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\lodash\\_isKey.js":{"index":141,"hash":"D13Ok63JqktDADwmaeBu","parents":["node_modules\\lodash\\_baseMatchesProperty.js","node_modules\\lodash\\_castPath.js","node_modules\\lodash\\property.js"]},"node_modules\\lodash\\isSymbol.js":{"index":196,"hash":"uIIRbxfQUXadoioCe5+N","parents":["node_modules\\lodash\\_isKey.js","node_modules\\lodash\\_toKey.js","node_modules\\lodash\\_baseToString.js"]},"node_modules\\lodash\\_isStrictComparable.js":{"index":145,"hash":"rbCwfHyEpUrj4Z98kqqR","parents":["node_modules\\lodash\\_getMatchData.js","node_modules\\lodash\\_baseMatchesProperty.js"]},"node_modules\\lodash\\_baseHasIn.js":{"index":91,"hash":"+7Ad7hoG+3kwDHiM0tNn","parents":["node_modules\\lodash\\hasIn.js"]},"node_modules\\lodash\\isObjectLike.js":{"index":195,"hash":"qRO1rf+QsMbu/mjKbljZ","parents":["node_modules\\lodash\\isSymbol.js","node_modules\\lodash\\_baseIsArguments.js","node_modules\\lodash\\isArguments.js","node_modules\\lodash\\_baseIsTypedArray.js","node_modules\\lodash\\_baseIsEqual.js"]},"node_modules\\lodash\\get.js":{"index":185,"hash":"l8Xm0+dbrUDVfD0OVsKH","parents":["node_modules\\lodash\\_baseMatchesProperty.js"]},"node_modules\\lodash\\_baseGet.js":{"index":88,"hash":"EQWKE8NGYTKR53FHpqW6","parents":["node_modules\\lodash\\get.js","node_modules\\lodash\\_basePropertyDeep.js"]},"node_modules\\lodash\\_getMatchData.js":{"index":127,"hash":"QzO7KFepX9S2dqnbKqgt","parents":["node_modules\\lodash\\_baseMatches.js"]},"node_modules\\lodash\\_objectToString.js":{"index":162,"hash":"gcC0LTB2iC1gNln4H3WI","parents":["node_modules\\lodash\\_baseGetTag.js"]},"node_modules\\lodash\\_apply.js":{"index":74,"hash":"XKkzZTghrlK6WTNW2Mdh","parents":["node_modules\\lodash\\_overRest.js"]},"node_modules\\lodash\\_overRest.js":{"index":164,"hash":"iDNTQ1nLZv3jwCD1fhKA","parents":["node_modules\\lodash\\_baseRest.js"]},"node_modules\\lodash\\_shortOut.js":{"index":170,"hash":"IoUeHrEOcxqBK99ieVfK","parents":["node_modules\\lodash\\_setToString.js"]},"node_modules\\lodash\\_overArg.js":{"index":163,"hash":"DrVoGwBMK8ywtUgJJMWJ","parents":["node_modules\\lodash\\_nativeKeys.js"]},"node_modules\\lodash\\_nativeKeys.js":{"index":160,"hash":"Ksoa4f854F0/NggsS0Yh","parents":["node_modules\\lodash\\_baseKeys.js"]},"node_modules\\lodash\\_baseKeys.js":{"index":99,"hash":"kmg69OeKnhCzjV1WMGzu","parents":["node_modules\\lodash\\keys.js"]},"node_modules\\lodash\\_baseUnary.js":{"index":110,"hash":"cMYMf5ZcCBeLWbK9TQmI","parents":["node_modules\\lodash\\isTypedArray.js"]},"node_modules\\lodash\\stubFalse.js":{"index":205,"hash":"bsNH9caMXr7Pdt8ruFJt","parents":["node_modules\\lodash\\isBuffer.js"]},"node_modules\\lodash\\_getValue.js":{"index":132,"hash":"ECu3UgrdoHGLOVPWr5mD","parents":["node_modules\\lodash\\_getNative.js"]},"node_modules\\axios\\lib\\cancel\\CancelToken.js":{"index":8,"hash":"FHNSerik6mTW7UK588b6","parents":["node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\utils.js":{"index":28,"hash":"iAJPkkHOoTQ0lV9mgUDF","parents":["node_modules\\axios\\lib\\core\\InterceptorManager.js","node_modules\\axios\\lib\\helpers\\normalizeHeaderName.js","node_modules\\axios\\lib\\core\\transformData.js","node_modules\\axios\\lib\\core\\dispatchRequest.js","node_modules\\axios\\lib\\core\\Axios.js","node_modules\\axios\\lib\\helpers\\buildURL.js","node_modules\\axios\\lib\\helpers\\parseHeaders.js","node_modules\\axios\\lib\\helpers\\isURLSameOrigin.js","node_modules\\axios\\lib\\helpers\\cookies.js","node_modules\\axios\\lib\\adapters\\xhr.js","node_modules\\axios\\lib\\defaults.js","node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\helpers\\isAbsoluteURL.js":{"index":23,"hash":"vVWCDPr+MX6lpqXv8pbV","parents":["node_modules\\axios\\lib\\core\\Axios.js"]},"node_modules\\axios\\lib\\helpers\\combineURLs.js":{"index":21,"hash":"WcVx/KakaTKJx+B4Oqlg","parents":["node_modules\\axios\\lib\\core\\Axios.js"]},"node_modules\\engine.io-client\\lib\\transport.js":{"index":44,"hash":"mp7fZlClWfLgH++23uT2","parents":["node_modules\\engine.io-client\\lib\\transports\\websocket.js","node_modules\\engine.io-client\\lib\\transports\\polling.js","node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\browser-resolve\\empty.js":{"index":32,"hash":"47DEQpj8HBSa+/TImW+5","parents":["node_modules\\engine.io-client\\lib\\transports\\websocket.js"]},"node_modules\\lodash\\_baseGetTag.js":{"index":90,"hash":"ydPbt27q/TAHvOyjdq/H","parents":["node_modules\\lodash\\isSymbol.js","node_modules\\lodash\\isFunction.js","node_modules\\lodash\\_baseIsArguments.js","node_modules\\lodash\\_baseIsTypedArray.js","node_modules\\lodash\\_getTag.js"]},"node_modules\\lodash\\_toKey.js":{"index":177,"hash":"Fva7n1CrZYGNyjdfKbt3","parents":["node_modules\\lodash\\_hasPath.js","node_modules\\lodash\\_baseMatchesProperty.js","node_modules\\lodash\\_baseGet.js","node_modules\\lodash\\property.js"]},"node_modules\\lodash\\_hasPath.js":{"index":133,"hash":"H9ddOWkLPRuFYq8fwTEv","parents":["node_modules\\lodash\\hasIn.js"]},"node_modules\\lodash\\_castPath.js":{"index":114,"hash":"GgKBkmr1sBRSb1yd72qJ","parents":["node_modules\\lodash\\_hasPath.js","node_modules\\lodash\\_baseGet.js"]},"node_modules\\lodash\\isArguments.js":{"index":188,"hash":"iJIbQ7nb4q+C1riPMj/b","parents":["node_modules\\lodash\\_hasPath.js","node_modules\\lodash\\_arrayLikeKeys.js"]},"node_modules\\lodash\\hasIn.js":{"index":186,"hash":"o6j7gwruD7qKNbgMUe0j","parents":["node_modules\\lodash\\_baseMatchesProperty.js"]},"node_modules\\lodash\\_stackDelete.js":{"index":172,"hash":"LXafI5DDGP0wDwfpw8/U","parents":["node_modules\\lodash\\_Stack.js"]},"node_modules\\lodash\\_stackGet.js":{"index":173,"hash":"BoHW4uFMtND7Gi+JPdJf","parents":["node_modules\\lodash\\_Stack.js"]},"node_modules\\lodash\\_stackHas.js":{"index":174,"hash":"thY5y8jBCnJMfegnSD/V","parents":["node_modules\\lodash\\_Stack.js"]},"node_modules\\lodash\\_Symbol.js":{"index":71,"hash":"I77NsH5p3PRVWpJOtN3+","parents":["node_modules\\lodash\\_getRawTag.js","node_modules\\lodash\\_baseGetTag.js","node_modules\\lodash\\_equalByTag.js","node_modules\\lodash\\_baseToString.js"]},"node_modules\\lodash\\_root.js":{"index":165,"hash":"MupxTyUFdnn90wmcJpPL","parents":["node_modules\\lodash\\_Symbol.js","node_modules\\lodash\\isBuffer.js","node_modules\\lodash\\_Uint8Array.js","node_modules\\lodash\\_Map.js","node_modules\\lodash\\_DataView.js","node_modules\\lodash\\_Promise.js","node_modules\\lodash\\_Set.js","node_modules\\lodash\\_WeakMap.js","node_modules\\lodash\\_coreJsData.js"]},"node_modules\\lodash\\_getRawTag.js":{"index":129,"hash":"MUL9l/iYFvZaG1vReTH3","parents":["node_modules\\lodash\\_baseGetTag.js"]},"node_modules\\lodash\\isFunction.js":{"index":192,"hash":"0gysC+rTcZlhPWD04ANh","parents":["node_modules\\lodash\\isArrayLike.js","node_modules\\lodash\\_baseIsNative.js"]},"node_modules\\lodash\\constant.js":{"index":180,"hash":"E/D07UC1hh81w2R6/inn","parents":["node_modules\\lodash\\_baseSetToString.js"]},"node_modules\\lodash\\_baseSetToString.js":{"index":106,"hash":"iLxL219sz9iCOrPJz82a","parents":["node_modules\\lodash\\_setToString.js"]},"node_modules\\lodash\\_defineProperty.js":{"index":120,"hash":"0CbMU6r+0Uq1gikE9oNA","parents":["node_modules\\lodash\\_baseSetToString.js","node_modules\\lodash\\_baseAssignValue.js"]},"node_modules\\lodash\\_setToString.js":{"index":169,"hash":"hu7pnSotmEJV3Wx9OsJa","parents":["node_modules\\lodash\\_baseRest.js"]},"node_modules\\lodash\\_baseRest.js":{"index":105,"hash":"SUX2Uj3EprmvmkcHcoY/","parents":["node_modules\\lodash\\_createAssigner.js"]},"node_modules\\lodash\\_createAssigner.js":{"index":117,"hash":"JEqSu7xxpSyH40Y4GJ+V","parents":["node_modules\\lodash\\assign.js"]},"node_modules\\lodash\\_baseIsArguments.js":{"index":92,"hash":"caWdwJw13ty+5+1x9erg","parents":["node_modules\\lodash\\isArguments.js"]},"node_modules\\lodash\\_baseIsTypedArray.js":{"index":97,"hash":"cPl0GH9tkUCpceUV6gAk","parents":["node_modules\\lodash\\isTypedArray.js"]},"node_modules\\lodash\\_freeGlobal.js":{"index":124,"hash":"JkBVfFsfGmCLIMhuNXD1","parents":["node_modules\\lodash\\_nodeUtil.js","node_modules\\lodash\\_root.js"]},"node_modules\\lodash\\_nodeUtil.js":{"index":161,"hash":"a5iiX2Zkv5BTWgreCV8c","parents":["node_modules\\lodash\\isTypedArray.js"]},"node_modules\\lodash\\isTypedArray.js":{"index":197,"hash":"pNInOnl/2pKh0f1gDzOT","parents":["node_modules\\lodash\\_arrayLikeKeys.js","node_modules\\lodash\\_baseIsEqualDeep.js"]},"node_modules\\lodash\\isBuffer.js":{"index":191,"hash":"Uzhm1jNtW1f55Gsz24+8","parents":["node_modules\\lodash\\_arrayLikeKeys.js","node_modules\\lodash\\_baseIsEqualDeep.js"]},"node_modules\\lodash\\_arrayLikeKeys.js":{"index":77,"hash":"RWu/FT9WAfaDXPoucuiD","parents":["node_modules\\lodash\\keys.js"]},"node_modules\\lodash\\assign.js":{"index":179,"hash":"6X7UP3eqxcj6o2ias2ID","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\_toSource.js":{"index":178,"hash":"qhQsP8sNq2kil796yxWO","parents":["node_modules\\lodash\\_getTag.js","node_modules\\lodash\\_baseIsNative.js"]},"node_modules\\axios\\lib\\core\\InterceptorManager.js":{"index":11,"hash":"eKcTD61ZQvp+fRuqC8MM","parents":["node_modules\\axios\\lib\\core\\Axios.js"]},"node_modules\\axios\\lib\\helpers\\btoa.js":{"index":19,"hash":"50rlLXO/5hRkYfgSsE36","parents":["node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\helpers\\normalizeHeaderName.js":{"index":25,"hash":"ZOnEbUQ4gAqyOWXM/MJz","parents":["node_modules\\axios\\lib\\defaults.js"]},"node_modules\\engine.io-client\\node_modules\\ms\\index.js":{"index":54,"hash":"+i3MPFzut0mh8LK6NCY0","parents":["node_modules\\engine.io-client\\node_modules\\debug\\debug.js"]},"node_modules\\engine.io-client\\node_modules\\debug\\debug.js":{"index":53,"hash":"5FZHGx7z7kdbTIz7MyR0","parents":["node_modules\\engine.io-client\\node_modules\\debug\\browser.js"]},"node_modules\\engine.io-client\\node_modules\\debug\\browser.js":{"index":52,"hash":"Q9ewCSPMnJcAJRPsyk4r","parents":["node_modules\\engine.io-client\\lib\\transports\\websocket.js","node_modules\\engine.io-client\\lib\\transports\\polling-xhr.js","node_modules\\engine.io-client\\lib\\transports\\polling.js","node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\has-cors\\index.js":{"index":59,"hash":"HwTb4UF/S089ZYA8hrRl","parents":["node_modules\\engine.io-client\\lib\\xmlhttprequest.js"]},"node_modules\\engine.io-client\\lib\\xmlhttprequest.js":{"index":50,"hash":"bdorKhduNvEqwPS8Ryma","parents":["node_modules\\engine.io-client\\lib\\transports\\polling-xhr.js","node_modules\\engine.io-client\\lib\\transports\\polling.js","node_modules\\engine.io-client\\lib\\transports\\index.js"]},"node_modules\\component-inherit\\index.js":{"index":38,"hash":"T0Fqch4d4akvlr8bh7lc","parents":["node_modules\\engine.io-client\\lib\\transports\\websocket.js","node_modules\\engine.io-client\\lib\\transports\\polling-xhr.js","node_modules\\engine.io-client\\lib\\transports\\polling.js","node_modules\\engine.io-client\\lib\\transports\\polling-jsonp.js"]},"node_modules\\yeast\\index.js":{"index":231,"hash":"ZM3+5w4l/D2f6x7svySF","parents":["node_modules\\engine.io-client\\lib\\transports\\websocket.js","node_modules\\engine.io-client\\lib\\transports\\polling.js"]},"node_modules\\engine.io-client\\lib\\transports\\websocket.js":{"index":49,"hash":"T9c/ggKNrbmnrHTUqZ8f","parents":["node_modules\\engine.io-client\\lib\\transports\\index.js"]},"node_modules\\engine.io-client\\lib\\transports\\polling-xhr.js":{"index":47,"hash":"4NXW28jfIrijZLTpANlT","parents":["node_modules\\engine.io-client\\lib\\transports\\index.js"]},"node_modules\\engine.io-client\\lib\\transports\\polling.js":{"index":48,"hash":"iR9NdLeAEs8vSYk/mMqT","parents":["node_modules\\engine.io-client\\lib\\transports\\polling-xhr.js","node_modules\\engine.io-client\\lib\\transports\\polling-jsonp.js"]},"node_modules\\lodash\\_mapToArray.js":{"index":156,"hash":"XUQTl0anVZnXaUOrmxD7","parents":["node_modules\\lodash\\_equalByTag.js"]},"node_modules\\lodash\\_setToArray.js":{"index":168,"hash":"gUyAUZoZS3v/gnhOBsLW","parents":["node_modules\\lodash\\_equalByTag.js"]},"node_modules\\lodash\\_cacheHas.js":{"index":112,"hash":"zwJaX7fkgHAdYeTtYO2G","parents":["node_modules\\lodash\\_equalArrays.js"]},"node_modules\\lodash\\_stackClear.js":{"index":171,"hash":"ibWAz8K0fFq6Bb0SS4B7","parents":["node_modules\\lodash\\_Stack.js"]},"node_modules\\lodash\\_ListCache.js":{"index":64,"hash":"KxC/aKLlcuOS+PWx1HyP","parents":["node_modules\\lodash\\_stackClear.js","node_modules\\lodash\\_mapCacheClear.js","node_modules\\lodash\\_stackSet.js","node_modules\\lodash\\_Stack.js"]},"node_modules\\lodash\\_listCacheClear.js":{"index":146,"hash":"CHLB/DjalyhgxdfpsCnW","parents":["node_modules\\lodash\\_ListCache.js"]},"node_modules\\axios\\lib\\core\\transformData.js":{"index":16,"hash":"ogPxBrH/+f25p5LI/dDI","parents":["node_modules\\axios\\lib\\core\\dispatchRequest.js"]},"node_modules\\axios\\lib\\core\\dispatchRequest.js":{"index":13,"hash":"HtiwIy/HS1A24N/qgh+i","parents":["node_modules\\axios\\lib\\core\\Axios.js"]},"node_modules\\axios\\lib\\defaults.js":{"index":17,"hash":"qltyCvzMIprq5m6tzw01","parents":["node_modules\\axios\\lib\\core\\dispatchRequest.js","node_modules\\axios\\lib\\core\\Axios.js","node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\core\\Axios.js":{"index":10,"hash":"Y6SCtUi9Dxs62r8mPrVj","parents":["node_modules\\axios\\lib\\axios.js"]},"node_modules\\axios\\lib\\helpers\\buildURL.js":{"index":20,"hash":"/NGEKCSjJtQmLL9YgQ19","parents":["node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\helpers\\parseHeaders.js":{"index":26,"hash":"RSaxrIhXzzKyKZUYYMuV","parents":["node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\helpers\\isURLSameOrigin.js":{"index":24,"hash":"Q23gyeHuCUz6urO9LiH6","parents":["node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\helpers\\cookies.js":{"index":22,"hash":"bosLflNojvUQNanxX8Ou","parents":["node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\core\\settle.js":{"index":15,"hash":"oBiMdGYIWstYzLllkvdc","parents":["node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\core\\createError.js":{"index":12,"hash":"gewqDvLDQxuCJgfCZVcg","parents":["node_modules\\axios\\lib\\core\\settle.js","node_modules\\axios\\lib\\adapters\\xhr.js"]},"node_modules\\axios\\lib\\core\\enhanceError.js":{"index":14,"hash":"jQgfNs13AFaI52OMk6Uz","parents":["node_modules\\axios\\lib\\core\\createError.js"]},"node_modules\\axios\\lib\\adapters\\xhr.js":{"index":5,"hash":"aAqW8YO7v3QEaiiYtYs7","parents":["node_modules\\axios\\lib\\defaults.js","node_modules\\axios\\lib\\defaults.js"]},"node_modules\\axios\\lib\\axios.js":{"index":6,"hash":"HIDoC1nh7uFupiQwyIon","parents":["node_modules\\axios\\index.js"]},"node_modules\\axios\\index.js":{"index":4,"hash":"i3hbSNtq55ltbO/Ev0Ye","parents":["src\\components\\Poll.vue","src\\components\\Poll_List.vue"]},"src\\components\\Poll.vue":{"index":235,"hash":"TKDy2ednu9CfGKMc6F2I","parents":["src\\app.js"]},"node_modules\\engine.io-client\\lib\\transports\\polling-jsonp.js":{"index":46,"hash":"oEkG83OYr+yF9+O6KIZU","parents":["node_modules\\engine.io-client\\lib\\transports\\index.js"]},"node_modules\\engine.io-client\\lib\\transports\\index.js":{"index":45,"hash":"oFkQ4RgDHQJ8Ae5piZNj","parents":["node_modules\\engine.io-client\\lib\\socket.js"]},"node_modules\\engine.io-client\\lib\\socket.js":{"index":43,"hash":"kT2TeXgVs1CyKphjblzf","parents":["node_modules\\engine.io-client\\lib\\index.js"]},"node_modules\\engine.io-client\\lib\\index.js":{"index":42,"hash":"G6QYuSNu0EcS+G5tR9NE","parents":["node_modules\\engine.io-client\\index.js"]},"node_modules\\engine.io-client\\index.js":{"index":41,"hash":"TaZh2zcEs5+SiarJ3uJN","parents":["node_modules\\socket.io-client\\lib\\manager.js"]},"node_modules\\socket.io-client\\lib\\manager.js":{"index":214,"hash":"ea8fbXBXjC66BIPF5Pam","parents":["node_modules\\socket.io-client\\lib\\index.js"]},"node_modules\\socket.io-client\\lib\\index.js":{"index":213,"hash":"s/15kyEjN0kWB5dYl/1h","parents":[]},"node_modules\\lodash\\_Uint8Array.js":{"index":72,"hash":"Zc6+hCmhnXc0Y6Asmckn","parents":["node_modules\\lodash\\_equalByTag.js"]},"node_modules\\lodash\\_equalByTag.js":{"index":122,"hash":"5sdsIGyCGshbuSoIxoXa","parents":["node_modules\\lodash\\_baseIsEqualDeep.js"]},"node_modules\\lodash\\_equalArrays.js":{"index":121,"hash":"FLnT7PvdDDobU/p0ty8u","parents":["node_modules\\lodash\\_equalByTag.js","node_modules\\lodash\\_baseIsEqualDeep.js"]},"node_modules\\lodash\\_Map.js":{"index":65,"hash":"aezyd9/dXR4WmT/cJk4B","parents":["node_modules\\lodash\\_getTag.js","node_modules\\lodash\\_mapCacheClear.js","node_modules\\lodash\\_stackSet.js"]},"node_modules\\lodash\\_getNative.js":{"index":128,"hash":"c5Ljj0yzzW4dPj+JomYZ","parents":["node_modules\\lodash\\_Map.js","node_modules\\lodash\\_DataView.js","node_modules\\lodash\\_Promise.js","node_modules\\lodash\\_Set.js","node_modules\\lodash\\_WeakMap.js","node_modules\\lodash\\_defineProperty.js","node_modules\\lodash\\_nativeCreate.js"]},"node_modules\\lodash\\_DataView.js":{"index":62,"hash":"N7jUbJyl5TusFXojFUuz","parents":["node_modules\\lodash\\_getTag.js"]},"node_modules\\lodash\\_Promise.js":{"index":67,"hash":"T4OR1RtxAOTYyC9xrI13","parents":["node_modules\\lodash\\_getTag.js"]},"node_modules\\lodash\\_Set.js":{"index":68,"hash":"BRcgMZjGEVgVhv4GaR6q","parents":["node_modules\\lodash\\_getTag.js"]},"node_modules\\lodash\\_WeakMap.js":{"index":73,"hash":"iuNSA30LsHH/h10pNsQ6","parents":["node_modules\\lodash\\_getTag.js"]},"node_modules\\lodash\\_getTag.js":{"index":131,"hash":"rZSqomckxeMx8IEK6dQG","parents":["node_modules\\lodash\\_baseIsEqualDeep.js"]},"node_modules\\lodash\\_setCacheAdd.js":{"index":166,"hash":"yUbHLrOe8uWgSDa2EOmH","parents":["node_modules\\lodash\\_SetCache.js"]},"node_modules\\lodash\\_setCacheHas.js":{"index":167,"hash":"aSivpixRq6mV4rYXkVzt","parents":["node_modules\\lodash\\_SetCache.js"]},"node_modules\\lodash\\_SetCache.js":{"index":69,"hash":"DKcn0VM+nqBtuxUGd3JS","parents":["node_modules\\lodash\\_equalArrays.js"]},"node_modules\\lodash\\_MapCache.js":{"index":66,"hash":"XbhLy8omrsa87tk7GrBc","parents":["node_modules\\lodash\\_SetCache.js","node_modules\\lodash\\memoize.js","node_modules\\lodash\\_stackSet.js"]},"node_modules\\lodash\\_listCacheDelete.js":{"index":147,"hash":"o3YDg6klGWlCS2PgzZy+","parents":["node_modules\\lodash\\_ListCache.js"]},"node_modules\\lodash\\_assocIndexOf.js":{"index":82,"hash":"+YtyXqBKKXnwrSmv/2eU","parents":["node_modules\\lodash\\_listCacheDelete.js","node_modules\\lodash\\_listCacheHas.js","node_modules\\lodash\\_listCacheGet.js","node_modules\\lodash\\_listCacheSet.js"]},"node_modules\\lodash\\_listCacheHas.js":{"index":149,"hash":"2tu2JqPxTVjaJm/WbeGw","parents":["node_modules\\lodash\\_ListCache.js"]},"node_modules\\lodash\\_listCacheGet.js":{"index":148,"hash":"SZAC3U/+BLssJw9WKbhb","parents":["node_modules\\lodash\\_ListCache.js"]},"node_modules\\lodash\\_coreJsData.js":{"index":116,"hash":"mWDHPw3O0bwyURVR4xz+","parents":["node_modules\\lodash\\_isMasked.js"]},"node_modules\\lodash\\_isMasked.js":{"index":143,"hash":"vCLMgg9t+moWMD2eCyQw","parents":["node_modules\\lodash\\_baseIsNative.js"]},"node_modules\\lodash\\_baseIsNative.js":{"index":96,"hash":"HplAaZjQs9R/bNG2XV0a","parents":["node_modules\\lodash\\_getNative.js"]},"node_modules\\lodash\\mapValues.js":{"index":200,"hash":"wGzYh7rOmnr5NbNf31Xh","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\lodash\\_baseToString.js":{"index":109,"hash":"AnA1FrHVlMlph8hPfQFk","parents":["node_modules\\lodash\\toString.js"]},"node_modules\\lodash\\toString.js":{"index":206,"hash":"u6lNu4mjQVTOavtG4Hpr","parents":["node_modules\\lodash\\_castPath.js"]},"node_modules\\lodash\\_arrayPush.js":{"index":79,"hash":"/EQp182bKyQYd9DyjHRq","parents":["node_modules\\lodash\\_baseGetAllKeys.js"]},"node_modules\\lodash\\_baseGetAllKeys.js":{"index":89,"hash":"G/yC9530/ahn/dgrrslT","parents":["node_modules\\lodash\\_getAllKeys.js"]},"node_modules\\lodash\\stubArray.js":{"index":204,"hash":"hpV3ZtG8dCYBLEBt0XqS","parents":["node_modules\\lodash\\_getSymbols.js"]},"node_modules\\lodash\\_getSymbols.js":{"index":130,"hash":"PoUL82x850fu8UHfzZjw","parents":["node_modules\\lodash\\_getAllKeys.js"]},"node_modules\\lodash\\_getAllKeys.js":{"index":125,"hash":"3JYThcdBa6xFuMLEJAcf","parents":["node_modules\\lodash\\_equalObjects.js"]},"node_modules\\lodash\\_equalObjects.js":{"index":123,"hash":"Rc9NYU8R1s/bWUnUOXOJ","parents":["node_modules\\lodash\\_baseIsEqualDeep.js"]},"node_modules\\lodash\\_baseIsEqualDeep.js":{"index":94,"hash":"a5Qj+02BWo5995Nobe+v","parents":["node_modules\\lodash\\_baseIsEqual.js"]},"node_modules\\lodash\\_Stack.js":{"index":70,"hash":"/wytiRFlfgg4krF9Qz6a","parents":["node_modules\\lodash\\_baseIsEqualDeep.js","node_modules\\lodash\\_baseIsMatch.js"]},"node_modules\\lodash\\_baseIsEqual.js":{"index":93,"hash":"IfD9jeZw2S45+s0BZ1L3","parents":["node_modules\\lodash\\_baseMatchesProperty.js","node_modules\\lodash\\_baseIsMatch.js"]},"node_modules\\lodash\\_baseMatchesProperty.js":{"index":102,"hash":"JUSg/+I63FvjCRBMWDG8","parents":["node_modules\\lodash\\_baseIteratee.js"]},"node_modules\\lodash\\_listCacheSet.js":{"index":150,"hash":"dVcwdgHP8vQHHPnX+pql","parents":["node_modules\\lodash\\_ListCache.js"]},"node_modules\\lodash\\_mapCacheHas.js":{"index":154,"hash":"S0HdvBVxOySQIIMRmtf0","parents":["node_modules\\lodash\\_MapCache.js"]},"node_modules\\lodash\\_getMapData.js":{"index":126,"hash":"ZdeLudBY90L64kFsAIQL","parents":["node_modules\\lodash\\_mapCacheHas.js","node_modules\\lodash\\_mapCacheSet.js","node_modules\\lodash\\_mapCacheGet.js","node_modules\\lodash\\_mapCacheDelete.js"]},"node_modules\\lodash\\_mapCacheSet.js":{"index":155,"hash":"Rk8Cf6ZeJaOWzM2bXiED","parents":["node_modules\\lodash\\_MapCache.js"]},"node_modules\\lodash\\_mapCacheGet.js":{"index":153,"hash":"dglUiNgT6mYn3/TLOqMD","parents":["node_modules\\lodash\\_MapCache.js"]},"node_modules\\lodash\\memoize.js":{"index":201,"hash":"avTk3nhklvyvSxLNiUwd","parents":["node_modules\\lodash\\_memoizeCapped.js"]},"node_modules\\lodash\\_memoizeCapped.js":{"index":158,"hash":"HacnckK3nw4vtSYbX7i/","parents":["node_modules\\lodash\\_stringToPath.js"]},"node_modules\\lodash\\_stringToPath.js":{"index":176,"hash":"nTlFZDUaGsY0w/l3Daka","parents":["node_modules\\lodash\\_castPath.js"]},"node_modules\\lodash\\_basePropertyDeep.js":{"index":104,"hash":"Zfrh9AQz1Ry2yPu2pByv","parents":["node_modules\\lodash\\property.js"]},"node_modules\\lodash\\property.js":{"index":202,"hash":"2hJfadtQXM/U3NbWpzGR","parents":["node_modules\\lodash\\_baseIteratee.js"]},"node_modules\\lodash\\_isKeyable.js":{"index":142,"hash":"NQsK9iVUkTA1EsHPdaK1","parents":["node_modules\\lodash\\_getMapData.js"]},"node_modules\\lodash\\_mapCacheDelete.js":{"index":152,"hash":"Y2RLt8NGt0Im9c9uXXcS","parents":["node_modules\\lodash\\_MapCache.js"]},"node_modules\\lodash\\_hashDelete.js":{"index":135,"hash":"CmVwjIdw4ONOgfUyiaMT","parents":["node_modules\\lodash\\_Hash.js"]},"node_modules\\lodash\\_hashHas.js":{"index":137,"hash":"fr70n7H4vKHBcQoEXEpO","parents":["node_modules\\lodash\\_Hash.js"]},"node_modules\\lodash\\_nativeCreate.js":{"index":159,"hash":"QnEWfxsVWqcrQRLl5xaD","parents":["node_modules\\lodash\\_hashHas.js","node_modules\\lodash\\_hashSet.js","node_modules\\lodash\\_hashClear.js","node_modules\\lodash\\_hashGet.js"]},"node_modules\\lodash\\_hashSet.js":{"index":138,"hash":"GANy9myYOl9CQUX6Hi+w","parents":["node_modules\\lodash\\_Hash.js"]},"node_modules\\lodash\\_hashClear.js":{"index":134,"hash":"2feZ9hRgUzW8Djw0JrqE","parents":["node_modules\\lodash\\_Hash.js"]},"node_modules\\lodash\\_hashGet.js":{"index":136,"hash":"dc0CR5GuEuyIhxwkyCwj","parents":["node_modules\\lodash\\_Hash.js"]},"node_modules\\lodash\\_Hash.js":{"index":63,"hash":"hTyKHFwLDhT8hzgE2zlD","parents":["node_modules\\lodash\\_mapCacheClear.js"]},"node_modules\\lodash\\_mapCacheClear.js":{"index":151,"hash":"6D5+Bp90PNozl9Vr8wu2","parents":["node_modules\\lodash\\_MapCache.js"]},"node_modules\\lodash\\_stackSet.js":{"index":175,"hash":"rFq/zAhyEaIffTCH45Gf","parents":["node_modules\\lodash\\_Stack.js"]},"node_modules\\lodash\\_baseIsMatch.js":{"index":95,"hash":"yrF79Y2F5RiVXHPZgzhK","parents":["node_modules\\lodash\\_baseMatches.js"]},"node_modules\\lodash\\_baseMatches.js":{"index":101,"hash":"eM6GzX+YFfSSvWUut1RW","parents":["node_modules\\lodash\\_baseIteratee.js"]},"node_modules\\lodash\\map.js":{"index":199,"hash":"Gq/1p28f40AzWuWuaNZr","parents":["node_modules\\browserify-hmr\\inc\\index.js"]},"node_modules\\browserify-hmr\\inc\\index.js":{"index":33,"hash":"MGH8WksqsFtrirdPnhgt","parents":[]},"src\\components\\Poll_List.vue":{"index":236,"hash":"jYh6MfixMYyk+uss1YRn","parents":["src\\app.js"]},"src\\app.js":{"index":232,"hash":"56zp7o5hTe0caSpTf/4F","parents":[]}};
   var originalEntries = ["C:\\Users\\johannes\\Desktop\\web\\voto\\src\\app.js"];
   var updateUrl = null;
   var updateMode = "websocket";
@@ -22911,4 +25350,4 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   arguments[3], arguments[4], arguments[5], arguments[6]
 );
 
-},{"./node_modules\\browserify-hmr\\inc\\index.js":33,"./node_modules\\socket.io-client\\lib\\index.js":213,"C:\\Users\\johannes\\Desktop\\web\\voto\\src\\app.js":231}]},{},[1]);
+},{"./node_modules\\browserify-hmr\\inc\\index.js":33,"./node_modules\\socket.io-client\\lib\\index.js":213,"C:\\Users\\johannes\\Desktop\\web\\voto\\src\\app.js":232}]},{},[1]);

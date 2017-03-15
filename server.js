@@ -6,6 +6,7 @@ const express = require("express"),
       db = require("./db.js"),
       bcrypt = require("bcrypt"),
       bodyParser = require("body-parser"),
+      sass = require('node-sass'),
       middleware = require("./middleware.js")(db);
 
 const server = express();
@@ -14,24 +15,36 @@ const server = express();
 
 server.set("view engine", "pug");
 server.set("views", __dirname + "/views");
-server.use(express.static(__dirname + "/public"));
+
 server.use(morgan("combined"));
 server.use(bodyParser.json());
 server.set('trust proxy');
 
+// use the node-sass middleware to compile sass to css on startup
+
+
+
+
+server.use(express.static(__dirname + "/public"));
+
 // GET /
 
 server.get("/", (req,res) => {
-  res.render("dashboard");
+  res.render("index");
 });
 
 // GET /polls
 // For retrieving all available polls
 
 server.get("/polls", (req,res) => {
-  db.poll.findAll().then((polls) => {
-    res.status(200).json(polls).end;
-  });
+  if(!req.url.query) {
+    db.poll.findAll().then((polls) => {
+      res.status(200).json(polls).end;
+    });
+  }
+  else{
+    
+  }
 });
 
 // POST /polls
