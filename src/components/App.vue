@@ -18,7 +18,9 @@ div
 <script>
 
 export default {
-
+  computed: {
+   
+  }
 }
 
 </script>

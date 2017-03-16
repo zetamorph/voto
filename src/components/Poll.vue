@@ -3,6 +3,8 @@
   .columns
     .column
       h4 {{ poll.title }}
+      pie-chart(v-bind:poll-data="poll")
+
     .column
       li(v-for="option in poll.options")
         span {{ option.title }} 
@@ -13,11 +15,16 @@
 <script>
 
 import axios from 'axios';
+import PieChart from './charts/pieChart.js';
 
 export default {
   data () {
     return {
-      poll : {},
+      poll : {
+        options: [
+          {title: "", voteCount: ""}
+        ]
+      }
     }
   },
   watch: {
@@ -36,6 +43,9 @@ export default {
         this.poll = pollData;
       });
     }
+  },
+  components: {
+    PieChart
   }
 }
 

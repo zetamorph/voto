@@ -21,6 +21,7 @@ module.exports = (db) => {
       }).catch(() => {
         res.status(401).end();
       });
-    } 
+    }
   };
 };
+
