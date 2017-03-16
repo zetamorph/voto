@@ -9,6 +9,7 @@ import PollList from './components/Poll_List.vue';
 import Poll from './components/Poll.vue';
 import App from './components/App.vue';
 import Login from "./components/Login.vue";
+import Signup from "./components/Signup.vue";
 
 const router = new VueRouter({
   mode: 'history',
@@ -16,6 +17,7 @@ const router = new VueRouter({
   routes: [
     { path: "/", component: PollList },
     { path: "/login", name: "login", component: Login },
+    { path: "/signup", name: "signup", component: Signup },
     { path: "/polls/:id", name: 'poll', component: Poll }
   ]
 });

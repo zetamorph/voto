@@ -1,9 +1,7 @@
 <template lang="pug">
 
   div.box
-    ul
-      li.box(v-for="poll in polls" class="is-unselectable")
-        router-link(:to="{name: 'poll', params: { id : poll.id }}") {{ poll.title }} 
+    router-link.box(:to="{name: 'poll', params: { id : poll.id }}" v-for="poll in polls") {{ poll.title }} 
         
 </template>
 

@@ -1,8 +1,9 @@
-<template lang="jade">
+<template lang="pug">
+
+.columns
   .column
   .column
-  
-    h4 Register to vote on polls and share your opinion with others
+    h4 Sign Up to vote on polls and share your opinion with others
     label.label Username
     p.control
       input.input(type="text")
@@ -13,13 +14,20 @@
     p.control
       input.input(type="password")
     label.label Confirm Password
+    p.control
       input.input(type="password")
-
+    p.control
+      button.button.is-primary Sign Up
   .column
 
 </template>
 
 <script>
+
+export default {
+
+}
+
 </script>
 
 <style scoped>

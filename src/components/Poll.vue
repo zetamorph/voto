@@ -1,14 +1,17 @@
 <template lang="pug">
 
-  .columns
-    .column
-      h4 {{ poll.title }}
-      pie-chart(v-bind:poll-data="poll")
-
-    .column
-      li(v-for="option in poll.options")
-        span {{ option.title }} 
-        span {{ option.voteCount }} votes 
+div
+  section.hero
+    .hero-body
+      .container.has-text-centered
+        h1.title.is-1 {{ poll.title }}
+        h2.subtitle {{ poll.description }}
+  section.section
+    .columns
+      .column
+        pie-chart(v-bind:poll-data="poll")
+      .column
+        option-list(v-bind:option-data="poll.options")
 
 </template>
 
@@ -16,6 +19,7 @@
 
 import axios from 'axios';
 import PieChart from './charts/pieChart.js';
+import OptionList from './Option_list.vue';
 
 export default {
   data () {
@@ -45,7 +49,8 @@ export default {
     }
   },
   components: {
-    PieChart
+    PieChart,
+    OptionList
   }
 }
 
@@ -54,5 +59,9 @@ export default {
 <style>
   ul: {
     list-style:none;
+  }
+
+  .poll-title {
+    margin-bottom: 5vh;
   }
 </style>

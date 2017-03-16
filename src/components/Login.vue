@@ -3,14 +3,17 @@
   .columns
     .column
     .column
-      label.label Username
-      p.control
-        input.input(type="text" placeholder="Username")
-      label.label Password
-      p.control
-        input.input(type="password")
-      p.control
-        button.button.is-primary Log In
+      .field
+        label.label Username
+        p.control
+          input.input(type="text" placeholder="Username")
+      .field
+        label.label Password
+        p.control
+          input.input(type="password")
+      .field
+        p.control
+          button.button.is-primary Log In
     .column
 
 </template>
@@ -20,9 +23,12 @@
   export default {
     data () {
       return {
+        user: {
 
+        }
       }
-    }
+    },
+    
   }
 
 </script>

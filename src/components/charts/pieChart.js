@@ -14,16 +14,8 @@ export default Pie.extend({
         datasets: [
           {
             data: [],
-            backgroundColor: [
-                "#FF6384",
-                "#36A2EB",
-                "#FFCE56"
-            ],
-            hoverBackgroundColor: [
-                "#FF6384",
-                "#36A2EB",
-                "#FFCE56"
-            ]
+            backgroundColor: [],
+            borderColor: []
           }
         ]
       }
@@ -38,7 +30,17 @@ export default Pie.extend({
       for(var i=0; i<this.pollData.options.length; i++) {
         this.chartData.labels[i] = this.pollData.options[i].title;
         this.chartData.datasets[0].data[i] = this.pollData.options[i].voteCount;
+        let colorString = this.makeColorString();
+        this.chartData.datasets[0].backgroundColor[i] = colorString;
+        this.chartData.datasets[0].borderColor[i] = colorString;
+
       }
+    },
+    makeColorString: function() {
+      return "rgba(" + this.makeRandomColor() + "," + this.makeRandomColor() + "," + this.makeRandomColor() + ",1)";
+    },
+    makeRandomColor: function() {
+      return Math.floor(Math.random()*255);
     }
   }
 })

@@ -1,6 +1,10 @@
 ul: {
   list-style:none;
 }
+
+.poll-title {
+  margin-bottom: 5vh;
+}
 /*! bulma.io v0.3.2 | MIT License | github.com/jgthms/bulma */
 @keyframes spinAround {
   from {
@@ -4029,3 +4033,9 @@ label.panel-block {
 .footer {
   background-color: whitesmoke;
   padding: 3rem 1.5rem 6rem; }
+
+.fade-enter-active {
+  transition: opacity 1s; }
+
+.fade-enter, .fade-leave-to {
+  opacity: 0; }
