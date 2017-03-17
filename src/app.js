@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import axios from 'axios';
 import VueAxios from 'vue-axios';
+import VuexPersistedState from 'vuex-persistedstate';
 
 Vue.use(VueRouter);
 Vue.use(Vuex)
@@ -36,8 +37,14 @@ const store = new Vuex.Store({
     setUser: function (state, userData) {
       state.user.token = userData.token;
       state.user.id = userData.id;
+    },
+    deleteUser: function(state) {
+      state.user.token = "";
+      state.user.id = "";
     }
-  }
+
+  },
+  plugins: [VuexPersistedState()]
 });
 
 new Vue({

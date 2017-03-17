@@ -80,7 +80,7 @@ server.get("/polls/:id", (req,res) => {
     include:
       [{model: db.option,
         attributes: [
-          "title", [db.sequelize.fn('COUNT', "options.votes.id"), "voteCount"]
+          "id", "title", [db.sequelize.fn('COUNT', "options.votes.id"),"voteCount"]
         ],
         include: [{
           order: ["voteCount", "DESC"],
@@ -139,27 +139,6 @@ server.get("/polls/:id/options", (req,res) => {
   }).catch((err) => {
     res.status(404).json(err).end();
   });
-});
-
-// GET /polls/:id/options/votes
-// For retrieving the number of votes for each option of a specific poll
-
-server.get("/polls/:id/votes", (req,res) => {
-
-  const pollId = parseInt(req.params.id, 10);
-
-  db.option.count({
-    attributes: ["title"],
-    where: {
-      pollId: pollId
-    }, 
-    include: [db.vote],
-    group: ["title"]
-  }).then((optionVotes) => {
-    res.status(200).json(optionVotes).end;
-  }, (err) => {
-    res.status(404).json(err).end();
-  }); 
 });
 
 // POST /polls/:id/options

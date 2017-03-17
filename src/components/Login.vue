@@ -39,7 +39,10 @@
           this.$store.commit('setUser', {
             id: response.data.id, 
             token: response.headers.auth
-            });
+          });
+          this.$router.push('/');
+        }, (error) => {
+          return Promise.reject(err)
         });
       }
     }

@@ -8,7 +8,7 @@ div
         h2.subtitle {{ poll.description }}
   section.section
     .columns
-      .column
+      .column.is-one-third
         pie-chart(v-bind:poll="poll")
       .column
         option-list(v-bind:poll-data="poll" v-on:addOption="addOption")

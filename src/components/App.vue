@@ -8,12 +8,14 @@ div
       router-link.nav-item(:to="{path: '/'}") Latest
       router-link.nav-item(:to="{path: '/'}") Popular
       
-    .nav-right(v-if="user.isLoggedIn")
+    .nav-right(v-if="isLoggedIn")
       router-link.nav-item(:to="{path: '/'}") My Polls
       router-link.nav-item(:to="{path: '/'}") My Profile
+      a.nav-item(@click.prevent="logOut") Log Out
     .nav-right(v-else)
       router-link.nav-item(:to="{path: '/signup'}") Sign Up
       router-link.nav-item(:to="{path: '/login'}") Log In
+      
         
   transition(name="fade")
     router-view
@@ -22,15 +24,34 @@ div
 
 <script>
 
+import axios from 'axios';
+
 export default {
   data () {
     return {
-      user: {
-        isLoggedIn: false,
-      }
     }
-  } 
+  },
+  computed: {
+
+    isLoggedIn: function() {
+      if(!this.$store.state.user.id) return false;
+      return true;
+    }
+  },
+  methods: {
+    logOut: function() {
+      axios.delete("/users/login").then((response) => {
+        this.$store.commit("deleteUser");
+        this.$router.push("/");
+      }, (error) => {
+        return Promise.reject(error);
+      });
+    }
+  }
+
 }
+
+
 
 
 </script>

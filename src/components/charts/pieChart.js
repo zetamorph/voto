@@ -1,4 +1,4 @@
-import {Pie} from 'vue-chartjs';
+import {Pie, mixins} from 'vue-chartjs/es';
 
 export default Pie.extend({
   props: {
@@ -37,7 +37,7 @@ export default Pie.extend({
         this.chartData.datasets[0].data[i] = this.pollData.options[i].voteCount;
         let colorString = this.makeColorString();
         this.chartData.datasets[0].backgroundColor[i] = colorString;
-        this.chartData.datasets[0].borderColor[i] = colorString;
+        this.chartData.datasets[0].borderColor[i] = "rgba(255,255,255,0)"
       }
     },
     makeColorString: function() {

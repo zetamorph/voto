@@ -6,7 +6,7 @@ section.section.box
     ul
       li(v-for="option in poll.options")
         button.button.outlined
-          router-link(:to="{path: '/'}") {{option.title}}
+          router-link(:to="{path: '/'}") {{ option.title }} : {{ option.voteCount }} Votes
   .container.has-text-centered
     h4.title Or add a new option
     form(@submit.prevent="addOption")
