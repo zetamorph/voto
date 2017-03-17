@@ -76,7 +76,7 @@ server.get("/polls/:id", (req,res) => {
     where: {
       id: pollId
     },
-    attributes: ["title", "description", "createdAt"],
+    attributes: ["id","title", "description", "createdAt"],
     include:
       [{model: db.option,
         attributes: [

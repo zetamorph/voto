@@ -1,9 +1,12 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
+import axios from 'axios';
+import VueAxios from 'vue-axios';
 
 Vue.use(VueRouter);
 Vue.use(Vuex)
+Vue.use(VueAxios, axios);
 
 import PollList from './components/Poll_List.vue';
 import Poll from './components/Poll.vue';
@@ -24,10 +27,16 @@ const router = new VueRouter({
 
 const store = new Vuex.Store({
   state: {
-    user: {}
+    user: {
+      id: "",
+      token: ""
+    }
   },
   mutations: {
-    
+    setUser: function (state, userData) {
+      state.user.token = userData.token;
+      state.user.id = userData.id;
+    }
   }
 });
 
@@ -36,4 +45,11 @@ new Vue({
   router,
   store,
   render: h => h(App)
+});
+
+Vue.axios.interceptors.request.use(function (request) {
+  request.headers.Auth = store.state.user.token;
+  return Promise.resolve(request);
+}, function (err) {
+  return Promise.reject(error);
 });

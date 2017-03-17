@@ -2,7 +2,7 @@ import {Pie} from 'vue-chartjs';
 
 export default Pie.extend({
   props: {
-    pollData: {
+    poll: {
       type: Object,
       required: true
     }
@@ -25,6 +25,11 @@ export default Pie.extend({
       this.makeChartData();
       this.renderChart(this.chartData);
   },
+  computed: {
+    pollData: function() {
+      return this.poll;
+    }
+  },
   methods: {
     makeChartData: function() {
       for(var i=0; i<this.pollData.options.length; i++) {
@@ -33,7 +38,6 @@ export default Pie.extend({
         let colorString = this.makeColorString();
         this.chartData.datasets[0].backgroundColor[i] = colorString;
         this.chartData.datasets[0].borderColor[i] = colorString;
-
       }
     },
     makeColorString: function() {

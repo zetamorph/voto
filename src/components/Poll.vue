@@ -9,9 +9,9 @@ div
   section.section
     .columns
       .column
-        pie-chart(v-bind:poll-data="poll")
+        pie-chart(v-bind:poll="poll")
       .column
-        option-list(v-bind:option-data="poll.options")
+        option-list(v-bind:poll-data="poll" v-on:addOption="addOption")
 
 </template>
 
@@ -25,9 +25,7 @@ export default {
   data () {
     return {
       poll : {
-        options: [
-          {title: "", voteCount: ""}
-        ]
+        options: []
       }
     }
   },
@@ -46,6 +44,9 @@ export default {
       axios.get("http://localhost:8000/polls/" + this.$route.params.id).then(({data: pollData}) => {
         this.poll = pollData;
       });
+    },
+    addOption: function () {
+      this.getPollData();
     }
   },
   components: {
