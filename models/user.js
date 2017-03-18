@@ -5,6 +5,15 @@ const bcrypt = require('bcrypt'),
 
 module.exports = function (sequelize, DataTypes) {
   var user = sequelize.define('user', {
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isAlphanumeric: true,
+        len: [6, 30]
+      }
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false,

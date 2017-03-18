@@ -74,6 +74,8 @@ server.get("/polls/:id", (req,res) => {
   db.poll.findOne({
     where: {
       id: pollId
+    },include: {
+      model:db.user, attributes: ["username", "id"]
     }}).then((poll) => {
     res.status(200).json(poll).end();
   }, (err) => {
@@ -129,10 +131,11 @@ server.get("/polls/:id/options", (req,res) => {
 });
 
 // POST /polls/:id/options
-// For creating a new option for a poll
+// For creating one or more new options for a poll
 
 server.post("/polls/:id/options", middleware.requireAuth, (req,res) => {
-  const body = _.pick(req.body, "title");
+  
+  var body = _.pick(req.body, "title");
   const pollId = parseInt(req.params.id, 10);
 
   db.poll.findById(pollId).then((pollInstance) => {
@@ -140,6 +143,7 @@ server.post("/polls/:id/options", middleware.requireAuth, (req,res) => {
       throw new Error();
     }
     req.poll = pollInstance;
+
     return db.option.create(body);
   }).then((option) => {
     req.poll.addOption(option).then(() => {
@@ -152,13 +156,13 @@ server.post("/polls/:id/options", middleware.requireAuth, (req,res) => {
   });
 });
 
-// POST /polls/:pollId/vote
+// POST /polls/:pollId/votes
 // For voting on an option
 
-server.post("/polls/:pollId/vote", middleware.requireAuth, (req,res) => {
+server.post("/polls/:pollId/votes/:optionId", middleware.requireAuth, (req,res) => {
 
   const voteData = {
-    optionId: req.body.optionId,
+    optionId: req.params.optionId,
     userId: req.user.id,
   };
 
@@ -175,7 +179,7 @@ server.post("/polls/:pollId/vote", middleware.requireAuth, (req,res) => {
 // For signing up a new user
 
 server.post("/users/signup", (req,res) => {
-  const body = _.pick(req.body, "email", "password");
+  const body = _.pick(req.body, "username", "email", "password");
 
   db.user.create(body).then((user) => {
     res.json(user.toPublicJSON()).end;
@@ -250,8 +254,8 @@ server.get("/polls/:pollId/votes/users/:userId", middleware.requireAuth, (req,re
     "FROM polls " +
     "LEFT JOIN options ON options.pollId = polls.id " + 
     "LEFT OUTER JOIN votes ON options.id = votes.optionId " +
-    "LEFT JOIN users ON users.id = " + userId +
-    " WHERE polls.id = " + pollId + " GROUP BY users.id"
+    "LEFT JOIN users ON users.id = votes.userId" +
+    " WHERE polls.id = " + pollId + " AND users.id=" + userId + " GROUP BY polls.id"
   ).then((result) => {
     res.status(200).json(result[0][0]).end();
   });
@@ -260,9 +264,10 @@ server.get("/polls/:pollId/votes/users/:userId", middleware.requireAuth, (req,re
 db.sequelize.sync({
 
   // uncomment to force the creation of new tables
-  // force:true
+  //force:true
 
-  }).then(() => {
+}).then(() => {
+  //require("./data/seed.js")(db);
   server.listen(8000, () => {
   console.log("Voto Server is running on port 8000");
   });

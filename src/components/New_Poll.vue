@@ -1,21 +1,40 @@
 <template lang="pug">
 
-section.section
-  .container.has-text-centered
-    h1.title Create a new Poll and add up to 5 initial options
-  .container
-    form(@submit.prevent="createPoll")
-      .field
-        label.label Title
-        p.control
-          input.input(type="text" v-model="pollData.title")
-      .field
-        label.label Description
-        p.control
-          input.input(type="text" v-model="pollData.description")
-      .field
-        p.control
-          button.button.is-primary(type="submit") Create Poll
+.container
+  section.hero.is-bold
+    .hero-body
+      .container.has-text-centered
+        h1.title(v-if="!pollCreated") Create a new Poll!
+        h1.title(v-else) Now add up to 5 initial options!
+  .columns
+    .column
+    .column
+      .container(v-if="!pollCreated")
+        form(@submit.prevent="createPoll")
+          .field
+            label.label Title
+            p.control
+              input.input(type="text" v-model="pollData.title")
+          .field
+            p.control
+              button.button.is-primary(type="submit") Create Poll
+      .container(v-else)
+        ul 
+          li(v-for="option in options") {{option}}
+        form(@submit.prevent="addOption")
+          .field
+            label.label New Option 
+            p.control
+              input.input(v-model="newOption")
+          .field
+            label.label
+            p.control
+              button.button.is-primary(type="submit") Add Option
+              button.button.is-warning
+                router-link(:to="{name: 'poll', params: {id: pollData.newId}}") That`s enough
+
+          
+    .column
 
 
 </template>
@@ -28,19 +47,45 @@ export default {
   data () {
     return {
       pollData: {
-        title: "",
-        description: ""
+        newId: "",
+        title: ""
+      },
+      options: [],
+      newOption: ""
+    }
+  },
+  watch: {
+    hasFiveOptions: function() {
+      if(this.hasFiveOptions) {
+        this.$router.push({name:"poll", params: {id: this.pollData.newId}});
       }
     }
   },
   methods: {
     createPoll: function() {
+      let self = this;
       axios.post("/polls",{
         title: this.pollData.title,
-        description: this.pollData.description
       }).then((response) => {
-        this.$router.push({name:"poll", params: {id: response.data.id}});
+        self.pollData.newId = response.data.id;
+        //
       });
+    },
+    addOption: function () {
+      let self = this;
+      axios.post("/polls/" + this.pollData.newId + "/options", {title: this.newOption}).then((response) => {
+        self.options.push(response.data.title);
+        self.newOption = "";
+      });
+        // show error
+    }
+  },
+  computed: {
+    pollCreated: function() {
+      return this.pollData.newId !== "";
+    },
+    hasFiveOptions: function() {
+      return this.options.length >= 5;
     }
   }
 }

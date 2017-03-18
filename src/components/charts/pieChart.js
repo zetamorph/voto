@@ -1,10 +1,13 @@
 import {Pie, mixins} from 'vue-chartjs/es';
 
 export default Pie.extend({
-
-  mixins: [mixins.reactiveProp],
-  props: ['options'],
+  props: ['chartObj'],
   mounted() {
-    this.renderChart(this.chartData, this.options);
+    this.renderChart(this.chart.data, this.chart.options);
+  },
+  computed: {
+    chart: function () {
+      return this.chartObj;
+    }
   }
 })

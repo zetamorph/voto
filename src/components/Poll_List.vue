@@ -1,7 +1,8 @@
 <template lang="pug">
 
   div.box
-    router-link.box(:to="{name: 'poll', params: { id : poll.id }}" v-for="poll in polls") {{ poll.title }} 
+    router-link.box.has-text-centered(:to="{name: 'poll', params: { id : poll.id }}" v-for="poll in polls") 
+      h4.title.is-bold.is-primary {{ poll.title }} 
         
 </template>
 
