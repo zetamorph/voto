@@ -5,16 +5,17 @@ div
       router-link.nav-item(:to="{ path: '/' }")
         h1.title Voto
     .nav-center
-      router-link.nav-item(:to="{path: '/'}") Latest
-      router-link.nav-item(:to="{path: '/'}") Popular
+      router-link.nav-item.is-tab(:to="{path: '/'}") Latest
+      router-link.nav-item.is-tab(:to="{path: '/'}") Popular
+      router-link.nav-item.is-tab(:to="{path: '/new'}" v-if="isLoggedIn") New Poll
       
     .nav-right(v-if="isLoggedIn")
-      router-link.nav-item(:to="{path: '/'}") My Polls
-      router-link.nav-item(:to="{path: '/'}") My Profile
-      a.nav-item(@click.prevent="logOut") Log Out
+      router-link.nav-item.is-tab(:to="{path: '/'}") My Polls
+      router-link.nav-item.is-tab(:to="{path: '/'}") My Profile
+      a.nav-item.is-tab(@click.prevent="logOut") Log Out
     .nav-right(v-else)
-      router-link.nav-item(:to="{path: '/signup'}") Sign Up
-      router-link.nav-item(:to="{path: '/login'}") Log In
+      router-link.nav-item.is-tab(:to="{path: '/signup'}") Sign Up
+      router-link.nav-item.is-tab(:to="{path: '/login'}") Log In
       
         
   transition(name="fade")

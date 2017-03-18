@@ -71,24 +71,10 @@ server.get("/polls/:id", (req,res) => {
 
   const pollId = req.params.id;
 
-  db.poll.find({
-    group: ["options.id"],
+  db.poll.findOne({
     where: {
       id: pollId
-    },
-    attributes: ["id","title", "description", "createdAt"],
-    include:
-      [{model: db.option,
-        attributes: [
-          "id", "title", [db.sequelize.fn('COUNT', "options.votes.id"),"voteCount"]
-        ],
-        include: [{
-          order: ["voteCount", "DESC"],
-          model: db.vote,
-          attributes: []
-        }]
-      }]
-  }).then((poll) => {
+    }}).then((poll) => {
     res.status(200).json(poll).end();
   }, (err) => {
     res.status(404).json(err).end();
@@ -130,12 +116,13 @@ server.delete("/polls/:id", middleware.requireAuth, (req,res) => {
 server.get("/polls/:id/options", (req,res) => {
   const pollId = parseInt(req.params.id, 10);
 
-  db.option.findAll({
-    where: {
-      pollId: pollId
-    }
-  }).then((options) => {
-    res.status(200).json(options).end();
+  db.sequelize.query(
+    "SELECT options.id, options.title, COUNT (votes.optionId) AS voteCount " +
+    "FROM options LEFT OUTER JOIN polls ON options.pollId = polls.id " +
+    "LEFT OUTER JOIN votes ON options.id = votes.optionId " +
+    "WHERE options.pollId = " + pollId + " GROUP BY options.id"
+    ).then((options) => {
+    res.status(200).json(options[0]).end();
   }).catch((err) => {
     res.status(404).json(err).end();
   });
@@ -165,18 +152,19 @@ server.post("/polls/:id/options", middleware.requireAuth, (req,res) => {
   });
 });
 
-// POST /polls/:pollId/options/:OptionId/
+// POST /polls/:pollId/vote
 // For voting on an option
 
-server.post("/polls/:pollId/options/:optionId", middleware.requireAuth, (req,res) => {
+server.post("/polls/:pollId/vote", middleware.requireAuth, (req,res) => {
 
   const voteData = {
-    optionId: req.params.optionId,
+    optionId: req.body.optionId,
     userId: req.user.id,
-    ip: req.ip
   };
 
   db.vote.create(voteData).then((vote) => {
+    return vote.reload();
+  }).then((vote) => {
     res.json(vote.toJSON()).end;
   }, (err) => {
     res.status(400).json(err).end;
@@ -244,6 +232,29 @@ server.get("/users/:id/polls", (req,res) => {
     }, (err) => {
       res.status(404).end();
     });
+});
+
+// GET /polls/:pollId/votes/users/:userId
+// Retrieve information about whether a user already voted for the specified poll
+
+server.get("/polls/:pollId/votes/users/:userId", middleware.requireAuth, (req,res) => {
+  const pollId = req.params.pollId;
+  const userId = req.params.userId;
+
+  db.sequelize.query(
+    "SELECT " + 
+      "CASE " +
+		    "WHEN users.id IS NULL THEN 'false' " +
+		    "ELSE 'true' " +
+	    "END AS hasVoted " +
+    "FROM polls " +
+    "LEFT JOIN options ON options.pollId = polls.id " + 
+    "LEFT OUTER JOIN votes ON options.id = votes.optionId " +
+    "LEFT JOIN users ON users.id = " + userId +
+    " WHERE polls.id = " + pollId + " GROUP BY users.id"
+  ).then((result) => {
+    res.status(200).json(result[0][0]).end();
+  });
 });
 
 db.sequelize.sync({

@@ -14,6 +14,7 @@ import Poll from './components/Poll.vue';
 import App from './components/App.vue';
 import Login from "./components/Login.vue";
 import Signup from "./components/Signup.vue";
+import NewPoll from "./components/New_Poll.vue";
 
 const router = new VueRouter({
   mode: 'history',
@@ -22,7 +23,8 @@ const router = new VueRouter({
     { path: "/", component: PollList },
     { path: "/login", name: "login", component: Login },
     { path: "/signup", name: "signup", component: Signup },
-    { path: "/polls/:id", name: 'poll', component: Poll }
+    { path: "/polls/:id", name: 'poll', component: Poll },
+    { path: "/new", name: "new", component: NewPoll }
   ]
 });
 
