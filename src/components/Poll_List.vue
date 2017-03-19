@@ -32,16 +32,16 @@ export default {
   },
   methods: {
     getPolls: function() {
+      let query = "";
       if(this.$route.query.user) {
-        axios.get("/api/polls/?user="+this.$route.query.user).then(({data : pollsData}) => {
-          this.polls = pollsData;
-        });
+        query = "?user="+this.$route.query.user;
+        
+      } else if(this.$route.query.sort) {
+        query = "?sort=" + this.$route.query.sort;
       }
-      else {
-        axios.get("/api/polls").then(({data: pollsData}) => {
-          this.polls = pollsData;
-        });
-      }
+      axios.get("/api/polls/" + query).then(({data : pollsData}) => {
+        this.polls = pollsData;
+      });
     }
   }
 }

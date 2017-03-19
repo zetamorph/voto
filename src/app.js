@@ -8,6 +8,7 @@ import VuexPersistedState from 'vuex-persistedstate';
 Vue.use(VueRouter);
 Vue.use(Vuex)
 Vue.use(VueAxios, axios);
+Vue.config.silent = true;
 
 import PollList from './components/Poll_List.vue';
 import Poll from './components/Poll.vue';
@@ -24,8 +25,7 @@ const router = new VueRouter({
     { path: "/login", name: "login", component: Login },
     { path: "/signup", name: "signup", component: Signup },
     { path: "/polls/:id", name: 'poll', component: Poll },
-    { path: "/new", name: "new", component: NewPoll },
-    { path: "/my-polls", component: PollList }
+    { path: "/new", name: "new", component: NewPoll }
   ]
 });
 

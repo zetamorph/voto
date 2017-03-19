@@ -5,13 +5,12 @@ div
       router-link.nav-item(:to="{ path: '/' }")
         h1.title Voto
     .nav-center
-      router-link.nav-item.is-tab(:to="{path: '/'}") Latest
+      router-link.nav-item.is-tab(:to="{path: '/', query: {sort: 'latest'}}") Latest
       router-link.nav-item.is-tab(:to="{path: '/'}") Popular
       router-link.nav-item.is-tab(:to="{path: '/new'}" v-if="isLoggedIn") New Poll
       
     .nav-right(v-if="isLoggedIn")
-      router-link.nav-item.is-tab(:to="{path: '/my-polls', query: {user: this.$store.state.user.id}}") My Polls
-      router-link.nav-item.is-tab(:to="{path: '/'}") My Profile
+      router-link.nav-item.is-tab(:to="{path: '/', query: {user: this.$store.state.user.id}}") My Polls
       a.nav-item.is-tab(@click.prevent="logOut") Log Out
     .nav-right(v-else)
       router-link.nav-item.is-tab(:to="{path: '/signup'}") Sign Up
@@ -59,7 +58,7 @@ export default {
 
 <style lang="scss">
 
-@import "./../sass/bulma.sass";
+@import "./../../node_modules/bulma/bulma";
 
 .fade-enter-active {
   transition: opacity 1s;

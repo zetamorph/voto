@@ -1,7 +1,8 @@
 const bcrypt = require('bcrypt'),
       _ = require('underscore'),
       jwt = require('jsonwebtoken'),
-      crypto = require('crypto-js');
+      crypto = require('crypto-js'),
+      config = require('./../config.json');
 
 module.exports = function (sequelize, DataTypes) {
   var user = sequelize.define('user', {
@@ -62,10 +63,10 @@ module.exports = function (sequelize, DataTypes) {
         }
         try {
           const stringData = JSON.stringify({id: this.get('id'), type: type});
-          const encryptedData = crypto.AES.encrypt(stringData, "animalsnake!%").toString();
+          const encryptedData = crypto.AES.encrypt(stringData, config.secrets.userSecret).toString();
           const token = jwt.sign({
             token: encryptedData
-          }, "snako%§snake");
+          }, config.secrets.jwtSecret);
 
           return token;
         } catch (err) {
@@ -94,8 +95,8 @@ module.exports = function (sequelize, DataTypes) {
       findByToken: (token) => {
         return new Promise((resolve,reject) => {
           try {
-            const decodedJWT = jwt.verify(token, "snako%§snake");
-            const bytes = crypto.AES.decrypt(decodedJWT.token, "animalsnake!%");
+            const decodedJWT = jwt.verify(token, config.secrets.jwtSecret);
+            const bytes = crypto.AES.decrypt(decodedJWT.token, config.secrets.userSecret);
             const tokenData = JSON.parse(bytes.toString(crypto.enc.Utf8));
 
             user.findById(tokenData.id).then((user) => {

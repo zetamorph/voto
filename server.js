@@ -47,7 +47,15 @@ apiRoutes.get("/polls", (req,res) => {
     db.poll.findAll({where: {userId : userId},include: {model: db.user, attributes: ["username"]}}).then((polls) => {
       res.status(200).json(polls).end;
     });
-  } 
+  } else if(req.query.sort) {
+    if(req.query.sort === "latest") {
+      db.poll.findAll({order: [['createdAt', 'DESC']], include: {model: db.user, attributes: ["username"]}}).then((polls) => {
+        res.status(200).json(polls).end;
+      });
+    } else if(req.query.sort === "popular") {
+      
+    }
+  }
   else {
     db.poll.findAll({include: {model: db.user, attributes: ["username"]}}).then((polls) => {
       res.status(200).json(polls).end;
