@@ -24,7 +24,8 @@ const router = new VueRouter({
     { path: "/login", name: "login", component: Login },
     { path: "/signup", name: "signup", component: Signup },
     { path: "/polls/:id", name: 'poll', component: Poll },
-    { path: "/new", name: "new", component: NewPoll }
+    { path: "/new", name: "new", component: NewPoll },
+    { path: "/my-polls", component: PollList }
   ]
 });
 

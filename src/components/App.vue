@@ -10,7 +10,7 @@ div
       router-link.nav-item.is-tab(:to="{path: '/new'}" v-if="isLoggedIn") New Poll
       
     .nav-right(v-if="isLoggedIn")
-      router-link.nav-item.is-tab(:to="{path: '/'}") My Polls
+      router-link.nav-item.is-tab(:to="{path: '/my-polls', query: {user: this.$store.state.user.id}}") My Polls
       router-link.nav-item.is-tab(:to="{path: '/'}") My Profile
       a.nav-item.is-tab(@click.prevent="logOut") Log Out
     .nav-right(v-else)

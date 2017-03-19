@@ -15,19 +15,23 @@ const server = express();
 
 server.set("view engine", "pug");
 server.set("views", __dirname + "/views");
-
 server.use(morgan("combined"));
 server.use(bodyParser.json());
+
+// if this is set, the ip property of a request is the left-most entry in the X-Forwarded-For header, 
+// so it is necessary for getting a user`s ip when the server is running behind a reverse proxy
+
 server.set('trust proxy');
-
-// use the node-sass middleware to compile sass to css on startup
-
-
-
 
 server.use(express.static(__dirname + "/public"));
 
+// set up api routes
+
+var apiRoutes = express.Router();
+server.use("/api", apiRoutes);
+
 // GET /
+// This will render index.pug where VueJS is mounted in #app
 
 server.get("/", (req,res) => {
   res.render("index");
@@ -36,21 +40,25 @@ server.get("/", (req,res) => {
 // GET /polls
 // For retrieving all available polls
 
-server.get("/polls", (req,res) => {
-  if(!req.url.query) {
-    db.poll.findAll().then((polls) => {
+
+apiRoutes.get("/polls", (req,res) => {
+  if(req.query.user) {
+    const userId = req.query.user;
+    db.poll.findAll({where: {userId : userId},include: {model: db.user, attributes: ["username"]}}).then((polls) => {
       res.status(200).json(polls).end;
     });
-  }
-  else{
-    
+  } 
+  else {
+    db.poll.findAll({include: {model: db.user, attributes: ["username"]}}).then((polls) => {
+      res.status(200).json(polls).end;
+    });
   }
 });
 
 // POST /polls
 // For creating a new poll
 
-server.post("/polls", middleware.requireAuth, (req,res) => {
+apiRoutes.post("/polls", middleware.requireAuth, (req,res) => {
   const body = _.pick(req.body, "title", "description");
   
   db.poll.create(body).then((poll) => {
@@ -67,7 +75,7 @@ server.post("/polls", middleware.requireAuth, (req,res) => {
 // GET /polls/:id
 // For retrieving a single poll, it`s options and votes cast for each option
 
-server.get("/polls/:id", (req,res) => {
+apiRoutes.get("/polls/:id", (req,res) => {
 
   const pollId = req.params.id;
 
@@ -86,14 +94,14 @@ server.get("/polls/:id", (req,res) => {
 // PUT /polls/:id
 // For changing an existing poll
 
-server.put("/polls/:id", middleware.requireAuth, (req,res) => {
+apiRoutes.put("/polls/:id", middleware.requireAuth, (req,res) => {
 
 });
 
 // DELETE /polls/:id
 // For deleting an existing poll
 
-server.delete("/polls/:id", middleware.requireAuth, (req,res) => {
+apiRoutes.delete("/polls/:id", middleware.requireAuth, (req,res) => {
   const pollId = parseInt(req.params.id, 10);
   
   db.poll.destroy({
@@ -115,7 +123,7 @@ server.delete("/polls/:id", middleware.requireAuth, (req,res) => {
 // GET /polls/:id/options
 // For retrieving all available options for a specific poll and the number of votes cast for each option
 
-server.get("/polls/:id/options", (req,res) => {
+apiRoutes.get("/polls/:id/options", (req,res) => {
   const pollId = parseInt(req.params.id, 10);
 
   db.sequelize.query(
@@ -133,7 +141,7 @@ server.get("/polls/:id/options", (req,res) => {
 // POST /polls/:id/options
 // For creating one or more new options for a poll
 
-server.post("/polls/:id/options", middleware.requireAuth, (req,res) => {
+apiRoutes.post("/polls/:id/options", middleware.requireAuth, (req,res) => {
   
   var body = _.pick(req.body, "title");
   const pollId = parseInt(req.params.id, 10);
@@ -159,7 +167,7 @@ server.post("/polls/:id/options", middleware.requireAuth, (req,res) => {
 // POST /polls/:pollId/votes
 // For voting on an option
 
-server.post("/polls/:pollId/votes/:optionId", middleware.requireAuth, (req,res) => {
+apiRoutes.post("/polls/:pollId/votes/:optionId", middleware.requireAuth, (req,res) => {
 
   const voteData = {
     optionId: req.params.optionId,
@@ -219,29 +227,10 @@ server.delete("/users/login", middleware.requireAuth, (req,res) => {
   });
 });
 
-// GET /users/:id/polls
-// See all polls a user has created
-
-server.get("/users/:id/polls", (req,res) => {
-  db.poll.findAll({
-    where: {
-      userId: req.params.id
-    }}).then((polls) => {
-      if(polls.length) { 
-        res.status(200).json(polls).end();
-      }
-      else {
-        res.status(404).end();
-      }
-    }, (err) => {
-      res.status(404).end();
-    });
-});
-
 // GET /polls/:pollId/votes/users/:userId
 // Retrieve information about whether a user already voted for the specified poll
 
-server.get("/polls/:pollId/votes/users/:userId", middleware.requireAuth, (req,res) => {
+apiRoutes.get("/polls/:pollId/votes/users/:userId", middleware.requireAuth, (req,res) => {
   const pollId = req.params.pollId;
   const userId = req.params.userId;
 
@@ -267,7 +256,10 @@ db.sequelize.sync({
   //force:true
 
 }).then(() => {
-  //require("./data/seed.js")(db);
+
+  // uncomment to seed the database with the data in the required file
+  // require("./data/seed.js")(db);
+
   server.listen(8000, () => {
   console.log("Voto Server is running on port 8000");
   });

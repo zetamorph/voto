@@ -1,12 +1,15 @@
-import {Pie, mixins} from 'vue-chartjs/es';
+import {Doughnut, mixins} from 'vue-chartjs/es';
 
-export default Pie.extend({
+export default Doughnut.extend({
   props: ['chartObj'],
   mounted() {
-    this.renderChart(this.chart.data, this.chart.options);
+    this.renderChart(this.chartData.data, this.chartData.options);
+  },
+  updated: function() {
+    this.renderChart(this.chartData.data, this.chartData.options);
   },
   computed: {
-    chart: function () {
+    chartData: function () {
       return this.chartObj;
     }
   }

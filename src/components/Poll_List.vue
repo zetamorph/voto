@@ -2,7 +2,11 @@
 
   div.box
     router-link.box.has-text-centered(:to="{name: 'poll', params: { id : poll.id }}" v-for="poll in polls") 
-      h4.title.is-bold.is-primary {{ poll.title }} 
+      .columns
+        .column.is-two-thirds
+          h4.title.is-bold.is-primary {{ poll.title }} 
+        .column
+          h6.subtitle by {{poll.user.username}}
         
 </template>
 
@@ -16,14 +20,28 @@ export default {
       polls : []
     }
   },
+  watch: {
+    '$route': function(to,from) {
+      if(from.query !== to.query) {
+        this.getPolls();
+      }
+    }
+  },
   beforeMount () {
-    axios.get("http://localhost:8000/polls").then(({data: pollsData}) => {
-      this.polls = pollsData;
-    });
+    this.getPolls();
   },
   methods: {
-    getPopular: function() {
-
+    getPolls: function() {
+      if(this.$route.query.user) {
+        axios.get("/api/polls/?user="+this.$route.query.user).then(({data : pollsData}) => {
+          this.polls = pollsData;
+        });
+      }
+      else {
+        axios.get("/api/polls").then(({data: pollsData}) => {
+          this.polls = pollsData;
+        });
+      }
     }
   }
 }

@@ -16,7 +16,7 @@ div
   section.section 
     .columns
       .column.is-1
-      .column.is-4
+      #pie-chart-container.column.is-4
         pie-chart(:chart-obj="chartData")
       .column.is-1
       .column.box.is-4(v-if="!userHasVoted && userLoggedIn")
@@ -33,7 +33,7 @@ div
           form(@submit.prevent="addOption")
             .field
               p.control
-                input.input(v-model="newOption")
+                input.input#new-option(ref="optionInput")
               p.control
                 button.button.is-primary(type="submit") Vote!
       .column.is-1
@@ -61,12 +61,15 @@ export default {
         }
       },
       options: [],
-      newOption: "",
       userHasVoted: false,
       chartOptions: {
         legend: {
-          display: false
+          display: true
+        },
+        tooltips: {
+          enabled: false
         }
+
       }
     }
   },
@@ -91,8 +94,8 @@ export default {
     getPollData: function () {
       let self = this;
       axios.all([
-        axios.get("http://localhost:8000/polls/" + this.$route.params.id),
-        axios.get("http://localhost:8000/polls/" + this.$route.params.id + "/options")
+        axios.get("/api/polls/" + this.$route.params.id),
+        axios.get("/api/polls/" + this.$route.params.id + "/options")
         ]).then(axios.spread((poll, options) => {
           self.poll.id = poll.data.id;
           self.poll.title = poll.data.title;
@@ -111,7 +114,7 @@ export default {
     checkIfVoted: function() {
       if(this.$store.state.user.id) {
         let self = this;
-        axios.get("http://localhost:8000/polls/" + this.$route.params.id + "/votes/users/" + this.$store.state.user.id).then((response) => {
+        axios.get("/api/polls/" + this.$route.params.id + "/votes/users/" + this.$store.state.user.id).then((response) => {
           if(response.data.hasVoted) self.userHasVoted = true;
           else self.userHasVoted = false;        
         });  
@@ -120,7 +123,7 @@ export default {
 
     voteOnOption: function (optionId) {
       let self = this;
-      axios.post("/polls/" + this.poll.id + "/votes/" + optionId).then((response) => {
+      axios.post("/api/polls/" + this.poll.id + "/votes/" + optionId).then((response) => {
         self.getPollData();
         self.userHasVoted = true;
       });
@@ -130,8 +133,9 @@ export default {
 
     addOption: function () {
       let self = this;
-      axios.post("/polls/"+this.poll.id+"/options", {title: this.newOption}).then((response) => {
-        return axios.post("/polls/" + self.poll.id + "/votes/" + response.data.id)
+      let newOption = this.$refs.optionInput.value;
+      axios.post("/api/polls/"+this.poll.id+"/options", {title: newOption}).then((response) => {
+        return axios.post("/api/polls/" + self.poll.id + "/votes/" + response.data.id)
       }).then((response) => {
         self.getPollData();
         self.userHasVoted = true;

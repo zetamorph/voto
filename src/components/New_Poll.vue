@@ -64,7 +64,7 @@ export default {
   methods: {
     createPoll: function() {
       let self = this;
-      axios.post("/polls",{
+      axios.post("api/polls",{
         title: this.pollData.title,
       }).then((response) => {
         self.pollData.newId = response.data.id;
@@ -73,7 +73,7 @@ export default {
     },
     addOption: function () {
       let self = this;
-      axios.post("/polls/" + this.pollData.newId + "/options", {title: this.newOption}).then((response) => {
+      axios.post("api/polls/" + this.pollData.newId + "/options", {title: this.newOption}).then((response) => {
         self.options.push(response.data.title);
         self.newOption = "";
       });
