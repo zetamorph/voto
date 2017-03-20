@@ -6,7 +6,6 @@ const express = require("express"),
       db = require("./db.js"),
       bcrypt = require("bcrypt"),
       bodyParser = require("body-parser"),
-      sass = require('node-sass'),
       middleware = require("./middleware.js")(db);
 
 const server = express();
@@ -15,15 +14,14 @@ const server = express();
 
 server.set("view engine", "pug");
 server.set("views", __dirname + "/views");
+server.use(express.static(__dirname + "/public"));
 server.use(morgan("combined"));
 server.use(bodyParser.json());
 
 // if this is set, the ip property of a request is the left-most entry in the X-Forwarded-For header, 
-// so it is necessary for getting a user`s ip when the server is running behind a reverse proxy
+// so setting this is necessary for getting a user`s ip when the server is running behind a reverse proxy
 
 server.set('trust proxy');
-
-server.use(express.static(__dirname + "/public"));
 
 // set up api routes
 
@@ -40,7 +38,6 @@ server.get("/", (req,res) => {
 // GET /polls
 // For retrieving all available polls
 
-
 apiRoutes.get("/polls", (req,res) => {
   if(req.query.user) {
     const userId = req.query.user;
@@ -53,14 +50,16 @@ apiRoutes.get("/polls", (req,res) => {
         res.status(200).json(polls).end;
       });
     } else if(req.query.sort === "popular") {
-      
+      // TODO
+      // find polls with their options and the respective votecount, order by total votecount
     }
   }
   else {
     db.poll.findAll({include: {model: db.user, attributes: ["username"]}}).then((polls) => {
       res.status(200).json(polls).end;
-    });
-  }
+    }).catch((err) => {
+      res.status(404).json(err).end();
+  });
 });
 
 // POST /polls
@@ -75,7 +74,7 @@ apiRoutes.post("/polls", middleware.requireAuth, (req,res) => {
     }).then((poll) => {
       res.json(poll.toJSON()).end();
     });
-  }, (err) => {
+  }).catch((err) => {
     res.status(400).json(err).end();
   });
 });
@@ -94,7 +93,7 @@ apiRoutes.get("/polls/:id", (req,res) => {
       model:db.user, attributes: ["username", "id"]
     }}).then((poll) => {
     res.status(200).json(poll).end();
-  }, (err) => {
+  }).catch((err) => {
     res.status(404).json(err).end();
   });
 });
@@ -166,7 +165,7 @@ apiRoutes.post("/polls/:id/options", middleware.requireAuth, (req,res) => {
       return option.reload();
     }).then((option) => {
       res.json(option.toJSON()).end();
-    }).catch(() => {
+    }).catch((err) => {
       res.status(500).json(err).end();
     });
   });
@@ -186,7 +185,7 @@ apiRoutes.post("/polls/:pollId/votes/:optionId", middleware.requireAuth, (req,re
     return vote.reload();
   }).then((vote) => {
     res.json(vote.toJSON()).end;
-  }, (err) => {
+  }).catch((err) => {
     res.status(400).json(err).end;
   });
 });
@@ -199,7 +198,7 @@ server.post("/users/signup", (req,res) => {
 
   db.user.create(body).then((user) => {
     res.json(user.toPublicJSON()).end;
-  }, (err) => {
+  }).catch((err) => {
     res.status(400).json(err).end;
   });
 });
@@ -251,17 +250,19 @@ apiRoutes.get("/polls/:pollId/votes/users/:userId", middleware.requireAuth, (req
     "FROM polls " +
     "LEFT JOIN options ON options.pollId = polls.id " + 
     "LEFT OUTER JOIN votes ON options.id = votes.optionId " +
-    "LEFT JOIN users ON users.id = votes.userId" +
-    " WHERE polls.id = " + pollId + " AND users.id=" + userId + " GROUP BY polls.id"
+    "LEFT JOIN users ON users.id = votes.userId " +
+    "WHERE polls.id = " + pollId + " AND users.id=" + userId + " GROUP BY polls.id"
   ).then((result) => {
     res.status(200).json(result[0][0]).end();
-  });
+  }).catch((err) => {
+    res.status(404).json(err).end();
+  }); 
 });
 
 db.sequelize.sync({
 
   // uncomment to force the creation of new tables
-  //force:true
+  // force:true
 
 }).then(() => {
 
