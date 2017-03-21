@@ -20,6 +20,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.16.1",
     "bulma": "^0.3.2",
+    "cors": "^2.8.1",
     "crypto-js": "^3.1.9-1",
     "express": "^4.14.1",
     "jsonwebtoken": "^7.3.0",
