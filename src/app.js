@@ -19,7 +19,7 @@ import NewPoll from "./components/New_Poll.vue";
 
 const router = new VueRouter({
   mode: 'history',
-  base: '/',
+  base: '/voto',
   routes: [
     { path: "/", component: PollList },
     { path: "/login", name: "login", component: Login },
