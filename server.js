@@ -15,8 +15,8 @@ const express = require("express"),
 // Setting up express
 
 server.set("view engine", "pug");
-server.set("views", __dirname + "/views");
-server.use(express.static(__dirname + "/public"));
+server.set("views", "./views");
+server.use(express.static("./public"));
 server.use(morgan("combined"));
 server.use(bodyParser.json());
 server.use(require("./controllers"));
