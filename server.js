@@ -23,6 +23,7 @@ server.use(morgan("combined"));
 server.use(bodyParser.json());
 server.use(require("./controllers"));
 server.use(cors());
+server.options("*", cors());
 
 // if this is set, the ip property of a request is the left-most entry in the X-Forwarded-For header, 
 // so setting this is necessary for getting a user`s ip when the server is running behind a reverse proxy
