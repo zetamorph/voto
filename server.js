@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const express = require("express"),
+      path = require('path'),
       morgan = require("morgan"),
       _ = require("underscore"),
       sqlite = require ("sqlite3"),
@@ -15,8 +16,8 @@ const express = require("express"),
 // Setting up express
 
 server.set("view engine", "pug");
-server.set("views", "./views");
-server.use(express.static(".voto/public"));
+server.set("views", path.join(__dirname, "./views"));
+server.use(express.static(path.join(__dirname, "/public")));
 server.use(morgan("combined"));
 server.use(bodyParser.json());
 server.use(require("./controllers"));
