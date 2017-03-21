@@ -16,7 +16,7 @@ const express = require("express"),
 
 server.set("view engine", "pug");
 server.set("views", "./views");
-server.use(express.static("./public"));
+server.use(express.static(".voto/public"));
 server.use(morgan("combined"));
 server.use(bodyParser.json());
 server.use(require("./controllers"));
