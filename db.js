@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize(undefined, undefined, undefined, {
   "dialect": "sqlite",
-  "storage": __dirname + "/data/voto.sqlite"
+  "storage": "./data/voto.sqlite"
 });
 
 var db = {};
