@@ -33,7 +33,7 @@
     methods: {
       onSubmit () {
         axios.post(
-          "/users/login",
+          "http://localhost:8000/users/login",
           this.$data
         ).then((response) => {
           this.$store.commit('setUser', {
