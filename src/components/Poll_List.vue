@@ -39,7 +39,7 @@ export default {
       } else if(this.$route.query.sort) {
         query = "?sort=" + this.$route.query.sort;
       }
-      axios.get("http://localhost:8000/api/polls/" + query).then(({data : pollsData}) => {
+      axios.get("/api/polls/" + query).then(({data : pollsData}) => {
         this.polls = pollsData;
       });
     }
