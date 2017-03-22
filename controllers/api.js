@@ -1,6 +1,7 @@
 const express = require("express"),
       router = express.Router(),
       db = require("./../db.js"),
+      _ = require('underscore'),
       middleware = require("./../middleware.js")(db);
 
 // GET /polls
