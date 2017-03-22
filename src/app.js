@@ -5,6 +5,7 @@ import axios from 'axios';
 import VueAxios from 'vue-axios';
 import VuexPersistedState from 'vuex-persistedstate';
 
+
 Vue.use(VueRouter);
 Vue.use(Vuex)
 Vue.use(VueAxios, axios);

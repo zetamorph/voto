@@ -3,6 +3,8 @@
 const express = require("express"),
       path = require('path'),
       cors = require('cors'),
+      fs = require('fs'),
+      https = require('https'),
       morgan = require("morgan"),
       _ = require("underscore"),
       sqlite = require ("sqlite3"),
@@ -39,7 +41,6 @@ db.sequelize.sync({
 
   // uncomment to seed the database with the data in the required file
   // require("./data/seed.js")(db);
-
   server.listen(8000, () => {
   console.log("Voto Server is running on port 8000");
   });
