@@ -16,7 +16,7 @@ div
       router-link.nav-item.is-tab(:to="{path: '/signup'}") Sign Up
       router-link.nav-item.is-tab(:to="{path: '/login'}") Log In
       
-  .notification.box.is-warning.has-text-centered(v-if="error")
+  .notification.box.is-danger.has-text-centered(v-if="error")
     h4.title {{error}} 
 
   transition(name="fade")

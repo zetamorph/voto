@@ -16,6 +16,7 @@
             p.control
               input.input(type="text" v-model="pollData.title")
           .field
+            label.label
             p.control
               button.button.is-primary(type="submit") Create Poll
       .container(v-else)

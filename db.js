@@ -1,7 +1,8 @@
 const Sequelize = require('sequelize');
+const config = require("config");
 const sequelize = new Sequelize(undefined, undefined, undefined, {
   "dialect": "sqlite",
-  "storage": "./data/voto.sqlite"
+  "storage": config.get("db.file")
 });
 
 var db = {};

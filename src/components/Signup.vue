@@ -52,7 +52,9 @@ export default {
           return Promise.reject(error);
         });
       } else{
-        
+        this.$store.state.error = "The passwords don`t match";
+        this.password = "";
+        this.confirmPassword = "";
         //show error
       }
     }

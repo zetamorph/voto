@@ -6,6 +6,7 @@ const express = require("express"),
       fs = require('fs'),
       https = require('https'),
       morgan = require("morgan"),
+      config = require("config"),
       _ = require("underscore"),
       sqlite = require ("sqlite3"),
       Sequelize = require("sequelize"),
@@ -33,12 +34,8 @@ server.options("*", cors());
 server.set('trust proxy');
 
 db.sequelize.sync({
-
-  // uncomment to force the creation of new tables
-  // force:true
-
+  // force: true
 }).then(() => {
-
   // uncomment to seed the database with the data in the required file
   // require("./data/seed.js")(db);
   server.listen(8000, () => {
@@ -46,6 +43,7 @@ db.sequelize.sync({
   });
 });
 
+module.exports = server;
 
 
 

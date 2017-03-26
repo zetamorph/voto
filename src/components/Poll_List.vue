@@ -1,7 +1,7 @@
 <template lang="pug">
 
-  div.box
-    router-link.box.has-text-centered(:to="{name: 'poll', params: { id : poll.id }}" v-for="poll in polls") 
+  div.box.poll-list(v-if="polls")
+    router-link.box.has-text-centered.poll(:to="{name: 'poll', params: { id : poll.id }}" v-for="poll in polls") 
       .columns
         .column.is-two-thirds
           h4.title.is-bold.is-primary {{ poll.title }} 
@@ -48,5 +48,10 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
+
+.poll:nth-child(2n) {
+  background: WhiteSmoke;
+}
+
 </style>

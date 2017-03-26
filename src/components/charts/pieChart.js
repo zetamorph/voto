@@ -6,7 +6,14 @@ export default Doughnut.extend({
     this.renderChart(this.chartData.data, this.chartData.options);
   },
   updated: function() {
+    this._chart.destroy();
     this.renderChart(this.chartData.data, this.chartData.options);
+  },
+  watch: {
+    chartData: function () {
+      this._chart.destroy();
+      this.renderChart(this.chartData.data, this.chartData.options);
+    }
   },
   computed: {
     chartData: function () {

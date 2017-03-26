@@ -16,26 +16,31 @@ div
   section.section 
     .columns
       .column.is-1
-      #pie-chart-container.column.is-4
+      #pie-chart-container.column(v-bind:class="{'is-4': userHasVoted || !userLoggedIn}")
         pie-chart(:chart-obj="chartData")
       .column.is-1
       .column.box.is-4(v-if="!userHasVoted && userLoggedIn")
-        .container.has-text-centered
-          h4.title Vote on an existing option
-        .container 
-          ul
-            li(v-for="option in options")
+        section.section
+          .container.has-text-centered
+            .notification.box
+              h4.title Vote on an existing option
+          .container
+            .notification.box(v-for="option in options")
+              .columns(@click="voteOnOption(option.id)")
+                .column.has-text-centered
+                  span {{option.title}}
+                .column.has-text-centered
+                  span {{option.voteCount}}
+        section.section
+          .container.has-text-centered
+            .notification.box
+              h4.title Or add a new option
+            form(@submit.prevent="addOption")
               .field
                 p.control
-                  button.button.outlined(@click="voteOnOption(option.id)") {{ option.title }} : {{ option.voteCount }} Votes
-        .container.has-text-centered
-          h4.title Or add a new option
-          form(@submit.prevent="addOption")
-            .field
-              p.control
-                input.input#new-option(ref="optionInput")
-              p.control
-                button.button.is-primary(type="submit") Vote!
+                  input.input#new-option(ref="optionInput")
+                p.control
+                  button.button.is-primary(type="submit") Vote!
       .column.is-1
 
          

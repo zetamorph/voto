@@ -1,4 +1,4 @@
-module.exports = function(db) {
+module.exports = function(db, cb) {
   db.user.bulkCreate([
     {username: "markus", email: "markus@markus.de", password: "markus"},
     {username: "johannes", email: "johannes@johannes.de", password: "johannes"},
@@ -53,9 +53,9 @@ module.exports = function(db) {
           {userId: 4, optionId: 3},
           {userId: 2, optionId: 5},
         ]);
-      }).then((data) => {
-        return Promise.resolve(data);
-      })
+      }).then(() => {
+        cb();
+      });
     });
   });
 }
