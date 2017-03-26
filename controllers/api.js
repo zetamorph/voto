@@ -12,15 +12,27 @@ router.get("/polls", (req,res) => {
     const userId = req.query.user;
     db.poll.findAll({where: {userId : userId},include: {model: db.user, attributes: ["username"]}}).then((polls) => {
       res.status(200).json(polls).end;
+    }).catch((err) => {
+      res.status(404).json(err).end();
     });
   } else if(req.query.sort) {
     if(req.query.sort === "latest") {
       db.poll.findAll({order: [['createdAt', 'DESC']], include: {model: db.user, attributes: ["username"]}}).then((polls) => {
         res.status(200).json(polls).end;
+      }).catch((err) => {
+        res.status(404).json(err);
       });
     } else if(req.query.sort === "popular") {
-      // TODO
-      // find polls with their options and the respective votecount, order by total votecount
+      db.sequelize.query(
+        "SELECT options.id, options.title, COUNT (votes.optionId) AS voteCount " +
+        "FROM options LEFT OUTER JOIN polls ON options.pollId = polls.id " +
+        "LEFT OUTER JOIN votes ON options.id = votes.optionId " +
+        "WHERE options.pollId = " + pollId + " GROUP BY options.id ORDER BY voteCount"
+        ).then((options) => {
+        res.status(200).json(options[0]).end();
+      }).catch((err) => {
+        res.status(404).json(err).end();
+      });
     }
   }
   else {

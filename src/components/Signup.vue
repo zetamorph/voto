@@ -3,25 +3,27 @@
 .columns
   .column
   .column
-    h4 Sign Up to vote on polls and share your opinion with others
+    .notification.box.has-text-centered
+      h4.title Sign up to vote on polls!
     form(@submit.prevent="onSubmit")
       .field
         label.label Username
         p.control
-          input.input(type="text" v-model="username")
+          input.input(type="text" v-model="username" placeholder="Username")
       .field
         label.label E-Mail
         p.control
-          input.input(type="email" v-model="email")
+          input.input(type="email" v-model="email" placeholder="E-Mail")
       .field
         label.label Password
         p.control
-          input.input(type="password" v-model="password")
+          input.input(type="password" v-model="password" placeholder="Password")
       .field
         label.label Confirm Password
         p.control
-          input.input(type="password" v-model="confirmPassword")
+          input.input(type="password" v-model="confirmPassword" placeholder="Confirm Password")
       .field
+        label.label
         p.control
           button.button.is-primary(type="submit") Sign Up
   .column
@@ -50,6 +52,7 @@ export default {
           return Promise.reject(error);
         });
       } else{
+        
         //show error
       }
     }

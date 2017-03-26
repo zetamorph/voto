@@ -16,7 +16,9 @@ div
       router-link.nav-item.is-tab(:to="{path: '/signup'}") Sign Up
       router-link.nav-item.is-tab(:to="{path: '/login'}") Log In
       
-        
+  .notification.box.is-warning.has-text-centered(v-if="error")
+    h4.title {{error}} 
+
   transition(name="fade")
     router-view
   
@@ -33,6 +35,9 @@ export default {
   },
   computed: {
 
+    error: function() {
+      return this.$store.state.error;
+    },
     isLoggedIn: function() {
       if(!this.$store.state.user.id) return false;
       return true;

@@ -5214,10 +5214,10 @@ label.panel-block {
   background-color: whitesmoke;
   padding: 3rem 1.5rem 6rem; }
 
-/* line 63, stdin */
+/* line 68, stdin */
 .fade-enter-active {
   transition: opacity 1s; }
 
-/* line 66, stdin */
+/* line 71, stdin */
 .fade-enter, .fade-leave-to {
   opacity: 0; }

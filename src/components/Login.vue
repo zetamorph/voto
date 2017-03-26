@@ -11,8 +11,9 @@
         .field
           label.label Password
           p.control
-            input.input(v-model="password" type="password")
+            input.input(v-model="password" type="password" placeholder="Password")
         .field
+          label.label
           p.control
             button.button.is-primary(type="submit") Log In
     .column

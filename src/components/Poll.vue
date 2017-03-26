@@ -1,18 +1,18 @@
 <template lang="pug">
 
 div
+  .notification.box.is-warning.has-text-centered(v-if="!pollHasVotes")
+    h4.title No one voted on this poll yet!
+  .notification.box.is-success.has-text-centered(v-if="userHasVoted")
+    h4.title You have already voted
+  .notification.box.has-text-centered(v-if="!userLoggedIn")
+    h4.title You have to log in to vote
   section.hero.is-bold
     .hero-body
       .container.has-text-centered
         h1.title.is-1 {{ poll.title }}
         h2.subtitle {{ poll.description }}
         h3.subtitle by {{poll.user.username}} on {{pollCreatedAt}}
-  .notification.box.is-warning.has-text-centered(v-if="!pollHasVotes")
-    h4.title No one voted on this poll yet!
-  .notification.box.is-success.has-text-centered(v-if="userHasVoted")
-    h4.title You have already voted
-  .notification.box.is-warning.has-text-centered(v-if="!userLoggedIn")
-    h4.title You have to log in to vote
   section.section 
     .columns
       .column.is-1
@@ -69,8 +69,7 @@ export default {
         tooltips: {
           enabled: false
         },
-
-      }
+      },
     }
   },
   watch: {
