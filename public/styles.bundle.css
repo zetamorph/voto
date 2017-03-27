@@ -5207,13 +5207,25 @@ label.panel-block {
   background-color: whitesmoke;
   padding: 3rem 1.5rem 6rem; }
 
-/* line 68, stdin */
+/* line 72, stdin */
 .fade-enter-active {
-  transition: opacity 1s; }
+  transition: opacity 2s; }
 
-/* line 71, stdin */
+/* line 75, stdin */
 .fade-enter, .fade-leave-to {
   opacity: 0; }
+
+/* line 79, stdin */
+#logo-V {
+  color: #4D01CC; }
+
+/* line 83, stdin */
+#logo-T {
+  color: #FF8A00; }
+
+/* line 87, stdin */
+#logo-O, #logo-O2 {
+  color: #51FF74; }
 .poll[data-v-361d9aca]:nth-child(2n) {
   background: WhiteSmoke;
 }
