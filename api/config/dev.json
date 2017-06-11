@@ -1,0 +1,6 @@
+{
+  "db": {
+    "file" : "voto.sqlite",
+    "force" : "false"
+  }
+}

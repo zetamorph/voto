@@ -1,0 +1,10 @@
+{
+  "dbConfig": {
+    "file" : "voto.sqlite",
+    "force" : "true"
+  },
+  "secrets": {
+    "userSecret": "userSecrets",
+    "jwtSecret": "jwtSecrets"
+  }
+}
