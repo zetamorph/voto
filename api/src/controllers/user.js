@@ -1,6 +1,6 @@
 const express = require("express"),
       router = express.Router(),
-      db = require("./../db.js"),
+      db = require("./../db/db.js"),
       middleware = require("./../middleware.js")(db),
       _ = require("underscore");
 

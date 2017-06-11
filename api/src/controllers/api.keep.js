@@ -80,13 +80,6 @@ router.get("/polls/:id", (req,res) => {
   });
 });
 
-// PUT /polls/:id
-// For changing an existing poll
-
-router.put("/polls/:id", middleware.requireAuth, (req,res) => {
-
-});
-
 // DELETE /polls/:id
 // For deleting an existing poll
 

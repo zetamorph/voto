@@ -10,11 +10,11 @@ var db = {};
 
 // importing models
 
-db.user = sequelize.import(__dirname + "/models/user.js");
-db.poll = sequelize.import(__dirname + "/models/poll.js");
-db.option = sequelize.import(__dirname + "/models/option.js");
-db.vote = sequelize.import(__dirname + "/models/vote.js");
-db.token = sequelize.import(__dirname + "/models/token.js");
+db.user = sequelize.import(__dirname + "/../models/user.js");
+db.poll = sequelize.import(__dirname + "/../models/poll.js");
+db.option = sequelize.import(__dirname + "/../models/option.js");
+db.vote = sequelize.import(__dirname + "/../models/vote.js");
+db.token = sequelize.import(__dirname + "/../models/token.js");
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
@@ -40,5 +40,3 @@ db.option.hasMany(db.vote);
 db.vote.belongsTo(db.option);
 
 module.exports = db;
-
-

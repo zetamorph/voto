@@ -1,0 +1,4 @@
+--ui tdd
+--reporter spec
+--timeout 2000
+--recursive

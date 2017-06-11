@@ -1,13 +1,15 @@
 const bodyParser = require("body-parser");
 const config = require("config");
-const db = require("./db");
+const db = require("./db/db");
+const env = process.env.NODE_ENV;
 const express = require("express");
 
 const middleware = require("./middleware/middleware")(db);
 const morgan = require("morgan");
 const path = require('path');
 const pollRoutes = require("./routes/polls");
-const seed = require("./db/seed.js");
+const optionRoutes = require("./routes/options");
+const seed = require("./db/seed");
 const Sequelize = require("sequelize");
 const sqlite = require ("sqlite3");
 const server = express();
@@ -16,13 +18,12 @@ let initCallback;
 
 /* Disable logging when testing */
 
-if(process.env.NODE_ENV != "test") {
+if(env !== "test") {
   server.use(morgan("combined"));
 }
 
-
 server.use(bodyParser.json());
-server.use(pollRoutes);
+server.use(pollRoutes, optionRoutes);
 
 // if this is set, the ip property of a request is the left-most entry in the X-Forwarded-For header, 
 // so setting this is necessary for getting a user`s ip when the server is running behind a reverse proxy
@@ -38,7 +39,7 @@ db.sequelize.sync({
       if(initCallback)  {
         initCallback();
       }
-      if(process.env.NODE_ENV =! "test") {
+      if(env !== "test") {
         console.log("Voto API is running on port 8000");
       }
     });
@@ -54,8 +55,3 @@ module.exports = {
     initCallback = cb;
   }
 }
-
-
-
-
-
