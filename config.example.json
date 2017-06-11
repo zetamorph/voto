@@ -1,6 +1,0 @@
-{
-  "secrets": {
-    "userSecret": "userSecrets",
-    "jwtSecret": "jwtSecrets"
-  }
-}

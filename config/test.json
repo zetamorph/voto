@@ -1,6 +1,0 @@
-{
-  "db": {
-    "file" : "./data/votoTest.sqlite",
-    "force" : "true"
-  }
-}
