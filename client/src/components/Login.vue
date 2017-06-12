@@ -22,32 +22,30 @@
 
 <script>
 
-  import axios from 'axios';
+  import axios from "axios";
 
   export default {
-    data () {
+    data() {
       return {
         email: "",
-        password: ""
-      }
+        password: "",
+      };
     },
     methods: {
-      onSubmit () {
-        axios.post(
-          "/users/login",
-          this.$data
-        ).then((response) => {
-          this.$store.commit('setUser', {
-            id: response.data.id, 
-            token: response.headers.auth
+      onSubmit() {
+        axios.post("http://localhost:8000/users/login", this.$data)
+        .then((response) => {
+          this.$store.commit("setUser", {
+            id: response.data.id,
+            token: response.headers.auth,
           });
-          this.$router.push('/');
-        }, (error) => {
-          return Promise.reject(err)
+          this.$router.push("/");
+        }, (err) => {
+          Promise.reject(err);
         });
-      }
-    }
-  }
+      },
+    },
+  };
 
 </script>
 

@@ -32,38 +32,33 @@
 
 <script>
 
-import axios from 'axios';
+import axios from "axios";
 
 export default {
-  data () {
+  data() {
     return {
       username: "",
       email: "",
       password: "",
-      confirmPassword: ""
-    }
+      confirmPassword: "",
+    };
   },
   methods: {
-    onSubmit: function () {
-      if(this.password === this.confirmPassword) {
-        axios.post("/users/signup", {username: this.username, email:this.email, password: this.password}).then((response) => {
-          this.$router.push('login');
+    onSubmit() {
+      if (this.password === this.confirmPassword) {
+        axios.post("http:/localhost:8000/users/signup", { username: this.username, email: this.email, password: this.password }).then(() => {
+          this.$router.push("login");
         }, (error) => {
-          return Promise.reject(error);
+          Promise.reject(error);
         });
-      } else{
+      } else {
         this.$store.state.error = "The passwords don`t match";
         this.password = "";
         this.confirmPassword = "";
-        //show error
       }
-    }
-  }
-
-  
-
-
-}
+    },
+  },
+};
 
 </script>
 

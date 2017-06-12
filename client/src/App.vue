@@ -30,44 +30,43 @@ div
 
 <script>
 
-import axios from 'axios';
+import axios from "axios";
 
 export default {
-  data () {
+  data() {
     return {
-    }
+    };
   },
   computed: {
-
-    error: function() {
+    error() {
       return this.$store.state.error;
     },
-    isLoggedIn: function() {
-      if(!this.$store.state.user.id) return false;
+    isLoggedIn() {
+      if (!this.$store.state.user.id) {
+        return false;
+      }
       return true;
-    }
+    },
   },
   methods: {
-    logOut: function() {
-      axios.delete("/users/login").then((response) => {
+    logOut() {
+      axios.delete("http://localhost:8000/users/login").then(() => {
         this.$store.commit("deleteUser");
         this.$router.push("/");
       }, (error) => {
-        return Promise.reject(error);
+        Promise.reject(error);
       });
-    }
-  }
+    },
+  },
 
-}
-
-
-
+};
 
 </script>
 
+
 <style lang="scss">
 
-@import "./../../node_modules/bulma/bulma";
+@import "./../node_modules/bulma/bulma";
 
 .fade-enter-active {
   transition: opacity 2s;

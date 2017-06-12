@@ -1,8 +1,6 @@
 <template lang="pug">
 
 div
-  .notification.box.is-warning.has-text-centered(v-if="!pollHasVotes")
-    h4.title No one voted on this poll yet!
   .notification.box.is-success.has-text-centered(v-if="userHasVoted")
     h4.title You have already voted
   .notification.box.has-text-centered(v-if="!userLoggedIn")
@@ -12,7 +10,7 @@ div
       .container.has-text-centered
         h1.title.is-1 {{ poll.title }}
         h2.subtitle {{ poll.description }}
-        h3.subtitle by {{poll.user.username}} on {{pollCreatedAt}}
+        h3.subtitle by {{poll.user.username}}
   section.section 
     .columns
       .column.is-1
@@ -23,14 +21,14 @@ div
         section
           .notification.box.has-text-centered(v-if="!userHasVoted && userLoggedIn")
             h4.title Vote on an existing option
-          .notification.box(v-for="option in options")
+          .notification.box(v-for="option, key in options")
             .columns
               .column.has-text-centered
-                span {{option.title}}
+                span {{option}}
               .column.has-text-centered
-                span {{option.voteCount}}
+                span {{votes[key]}}
               .column(v-if="!userHasVoted && userLoggedIn")
-                button.button(@click="voteOnOption(option.id)") Vote
+                button.button(@click="voteOnOption(++key)") Vote
         section(v-if="!userHasVoted && userLoggedIn")
           .notification.box.has-text-centered
             h4.title Or add a new option
@@ -48,85 +46,66 @@ div
 
 <script>
 
-import axios from 'axios';
-import PieChart from './charts/pieChart.js';
+import axios from "axios";
+import PieChart from "./charts/pieChart";
 
 export default {
-  data () {
+  data() {
     return {
-      poll : {
+      poll: {
         id: "",
         title: "",
         description: "",
         userId: "",
         createdAt: "",
         user: {
-          username: ""
-        }
+          username: "",
+        },
       },
       options: [],
+      votes: [],
       userHasVoted: false,
       chartOptions: {
         legend: {
-          display: true
+          display: true,
         },
         tooltips: {
-          enabled: false
+          enabled: false,
         },
       },
-    }
+    };
   },
   watch: {
-    '$route' : function(to, from) {
-      if(to.params.id !== from.params.id) {
+    $route(to, from) {
+      if (to.params.id !== from.params.id) {
         this.getPollData();
         this.makeChartData();
       }
-    }
+    },
   },
-  beforeMount () {
-
+  beforeMount() {
     this.getPollData();
-    
-    // Check if the user has voted on this poll already
-    this.checkIfVoted();
-
   },
   methods: {
-
-    getPollData: function () {
-      let self = this;
-      axios.all([
-        axios.get("/api/polls/" + this.$route.params.id),
-        axios.get("/api/polls/" + this.$route.params.id + "/options")
-        ]).then(axios.spread((poll, options) => {
-          self.poll.id = poll.data.id;
-          self.poll.title = poll.data.title;
-          self.poll.userId = poll.data.user.id;
-          self.poll.createdAt = poll.data.createdAt;
-          self.poll.user.username = poll.data.user.username;
-          self.options = [];
-          for(var i=0; i<options.data.length; i++) {
-            self.options.push(options.data[i]);
-          }
-      }), (error) => {
-        if(error) console.log(error);
+    getPollData() {
+      const self = this;
+      const pollId = this.$route.params.id;
+      axios.get(`http://localhost:8000/polls/${pollId}`)
+      .then((poll) => {
+        self.poll.id = poll.data.id;
+        self.poll.title = poll.data.title;
+        self.poll.user.username = poll.data.user.username;
+        self.options = poll.data.options;
+        self.votes = poll.data.votes;
+      })
+      .catch((err) => {
+        throw new Error(err);
       });
     },
 
-    checkIfVoted: function() {
-      if(this.$store.state.user.id) {
-        let self = this;
-        axios.get("/api/polls/" + this.$route.params.id + "/votes/users/" + this.$store.state.user.id).then((response) => {
-          if(response.data.hasVoted) self.userHasVoted = true;
-          else self.userHasVoted = false;        
-        });  
-      }
-    },
-
-    voteOnOption: function (optionId) {
-      let self = this;
-      axios.post("/api/polls/" + this.poll.id + "/votes/" + optionId).then((response) => {
+    voteOnOption(optionId) {
+      const self = this;
+      axios.post(`http://localhost:8000/options/${optionId}/votes`).then(() => {
         self.getPollData();
         self.userHasVoted = true;
       });
@@ -134,64 +113,58 @@ export default {
 
     // When a user adds an option, a vote on this option is automatically cast
 
-    addOption: function () {
-      let self = this;
-      let newOption = this.$refs.optionInput.value;
-      axios.post("/api/polls/"+this.poll.id+"/options", {title: newOption}).then((response) => {
-        return axios.post("/api/polls/" + self.poll.id + "/votes/" + response.data.id)
-      }).then((response) => {
+    addOption() {
+      const self = this;
+      const newOption = this.$refs.optionInput.value;
+      axios.post(`/api/polls/${this.poll.id}/options`, { title: newOption }).then(() => {
+        axios.post(`/api/polls/${self.poll.id}/votes`);
+      }).then(() => {
         self.getPollData();
         self.userHasVoted = true;
       });
     },
 
-    makeRGBAString: function() {
-      return "rgba(" + this.makeRandomColor() + "," + this.makeRandomColor() + "," + this.makeRandomColor() + ",1)";
+    makeRGBAString() {
+      return `rgba(${this.makeRandomColor()},${this.makeRandomColor()},${this.makeRandomColor()},1`;
     },
 
-    makeRandomColor: function() {
-      return Math.floor(Math.random()*255);
-    }
+    makeRandomColor() {
+      return Math.floor(Math.random() * 255);
+    },
   },
   computed: {
-    pollCreatedAt: function() {
-      let date = new Date(this.poll.createdAt);
-      return date.getDate() + "/" + String(parseInt(date.getMonth())+1) + "/" + date.getFullYear();
-    },
-    pollHasVotes: function() {
-      if(this.options.length === 0) return false;
-      return true;
-    },
-    chartData: function() {
-      let dataObj = {
+    chartData() {
+      const dataObj = {
         labels: [],
         datasets: [{
           data: [],
           backgroundColor: [],
-          borderColor: []
-        }]
+          borderColor: [],
+        }],
       };
-      for(var i=0; i<this.options.length; i++) {
-        dataObj.labels[i] = this.options[i].title;
-        dataObj.datasets[0].data[i] = this.options[i].voteCount;
-        let colorString = this.makeRGBAString();
+      let i;
+      for (i = 0; i < this.options.length; i += 1) {
+        dataObj.labels[i] = this.options[i];
+        dataObj.datasets[0].data[i] = this.votes[i];
+        const colorString = this.makeRGBAString();
         dataObj.datasets[0].backgroundColor[i] = colorString;
         dataObj.datasets[0].borderColor[i] = "rgba(255,255,255,0)";
       }
-      return {data: dataObj, options: this.chartOptions};
+      return { data: dataObj, options: this.chartOptions };
     },
-    userLoggedIn: function() {
-      if(!this.$store.state.user.id) return false;
+    userLoggedIn() {
+      if (!this.$store.state.user.id) return false;
       return true;
     },
-    userOwnsPoll: function() {
+    userOwnsPoll() {
+      if (!this.$store.state.user.id) return false;
       return this.poll.user.id === this.$store.state.user.id;
-    }
+    },
   },
   components: {
-    PieChart
-  }
-}
+    PieChart,
+  },
+};
 
 </script>
 

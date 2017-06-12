@@ -1,23 +1,23 @@
-import {Doughnut, mixins} from 'vue-chartjs/es';
+import { Doughnut } from "vue-chartjs/es";
 
 export default Doughnut.extend({
-  props: ['chartObj'],
+  props: ["chartObj"],
   mounted() {
     this.renderChart(this.chartData.data, this.chartData.options);
   },
-  updated: function() {
+  updated() {
     this._chart.destroy();
     this.renderChart(this.chartData.data, this.chartData.options);
   },
   watch: {
-    chartData: function () {
+    chartData() {
       this._chart.destroy();
       this.renderChart(this.chartData.data, this.chartData.options);
-    }
+    },
   },
   computed: {
-    chartData: function () {
+    chartData() {
       return this.chartObj;
-    }
-  }
-})
+    },
+  },
+});

@@ -42,54 +42,54 @@
 
 <script>
 
-import axios from 'axios';
+import axios from "axios";
 
 export default {
-  data () {
+  data() {
     return {
       pollData: {
         newId: "",
-        title: ""
+        title: "",
       },
       options: [],
-      newOption: ""
-    }
+      newOption: "",
+    };
   },
   watch: {
-    hasFiveOptions: function() {
-      if(this.hasFiveOptions) {
-        this.$router.push({name:"poll", params: {id: this.pollData.newId}});
+    hasFiveOptions() {
+      if (this.hasFiveOptions) {
+        this.$router.push({ name: "poll", params: { id: this.pollData.newId } });
       }
-    }
+    },
   },
   methods: {
-    createPoll: function() {
-      let self = this;
-      axios.post("api/polls",{
+    createPoll() {
+      const self = this;
+      axios.post("api/polls", {
         title: this.pollData.title,
-      }).then((response) => {
+      })
+      .then((response) => {
         self.pollData.newId = response.data.id;
-        //
       });
     },
-    addOption: function () {
-      let self = this;
-      axios.post("api/polls/" + this.pollData.newId + "/options", {title: this.newOption}).then((response) => {
+    addOption() {
+      const self = this;
+      axios.post(`api/polls/${this.pollData.newId}/options`, { title: this.newOption })
+      .then((response) => {
         self.options.push(response.data.title);
         self.newOption = "";
       });
-        // show error
-    }
+    },
   },
   computed: {
-    pollCreated: function() {
+    pollCreated() {
       return this.pollData.newId !== "";
     },
-    hasFiveOptions: function() {
+    hasFiveOptions() {
       return this.options.length >= 5;
-    }
-  }
-}
+    },
+  },
+};
 
 </script>
 
