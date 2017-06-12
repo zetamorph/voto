@@ -8,7 +8,7 @@ chai.use(chaiHttp);
 
 describe("Users", () => {
 
-  describe("Login users", () => {
+  describe("Login Users", () => {
     it("it logs a user in and returns an Auth header", (done) => {
       chai.request("localhost:8000")
         .post("/users/login")
@@ -26,7 +26,7 @@ describe("Users", () => {
     });
   });
 
-  describe("Signup users", () => {
+  describe("Signup Users", () => {
     it("it creates a new user", (done) => {
       chai.request("localhost:8000")
         .post("/users")
@@ -46,7 +46,7 @@ describe("Users", () => {
     });
   });
 
-  describe("Logout users", () => {
+  describe("Logout Users", () => {
 
     var token, user;
 
@@ -116,7 +116,6 @@ describe("Users", () => {
     });
     
     it("it deletes a logged in user", (done) => {
-      console.log(token, userId);
       chai.request("localhost:8000")
         .delete("/users/" + userId)
         .set("Content-Type", "application/json")
