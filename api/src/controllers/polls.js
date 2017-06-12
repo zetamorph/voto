@@ -59,6 +59,29 @@ module.exports = {
       createdPoll = _.pick(createdPoll, "id", "title");
       res.status(201).json(createdPoll);
     });
+  },
+
+  deletePoll(req,res) {
+    
+    const pollId = req.params.pollId;
+    db.poll.findById(pollId)
+    .then((poll) => {
+      if(req.user.id !== poll.dataValues.userId) {
+        return res.status(403).json({ err: "Only the creator can delete polls" });
+      }
+      return db.poll.destroy({
+        where: {
+          id: pollId
+        }
+      });
+    })
+    .then((rowsDeleted) => {
+      res.status(204).end();
+    })
+    .catch((err) => {
+      res.status(500).json({ err: "Internal Server Error" });
+    });
+  
   }
 
 }

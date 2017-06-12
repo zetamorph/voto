@@ -1,5 +1,6 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
+const db = require("./../src/db/db");
 const expect = chai.expect;
 const helper = require("./specHelper");
 
@@ -55,5 +56,46 @@ describe("Polls", (done) => {
         done();
       });
     });
+  });
+
+  describe("DELETE Polls", () => {
+
+    let pollId;
+
+    beforeEach("create a new poll to delete", (done) => {
+      db.poll.create({
+        title: "What is your favorite magazine?",
+        userId: 1
+      })
+      .then((poll) => {
+        pollId = poll.dataValues.id;
+        done();
+      });
+    });
+
+    it("it should delete a poll when the user is the creator", (done) => {
+      chai.request("localhost:8000")
+        .delete("/polls/" + pollId)
+        .set("Content-Type", "application/json")
+        .set("Auth", helper.token)
+        .end((err, res) => {
+          expect(res).to.have.status(204);
+        done();
+      });
+    });
+
+    it("it shouldn´t delete a poll when the user isn´t the creator", (done) => {
+      chai.request("localhost:8000")
+        .delete("/polls/3")
+        .set("Content-Type", "application/json")
+        .set("Auth", helper.token)
+        .end((err, res) => {
+          expect(res).to.have.status(403);
+          expect(res).to.be.json;
+          expect(res.body).to.have.property("err");
+        done();
+      });
+    });
+
   });
 });

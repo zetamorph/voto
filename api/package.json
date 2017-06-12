@@ -21,7 +21,6 @@
     "method-override": "^2.3.7",
     "morgan": "^1.8.1",
     "node-config": "0.0.2",
-    "q": "^1.4.1",
     "sequelize": "^3.30.2",
     "sqlite3": "^3.1.8",
     "underscore": "^1.8.3",
@@ -32,7 +31,6 @@
     "chai-http": "^3.0.0",
     "cross-env": "^5.0.1",
     "mocha": "^3.2.0",
-    "nodemon": "^1.11.0",
-    "require-again": "^2.0.0"
+    "nodemon": "^1.11.0"
   }
 }

@@ -1,6 +1,6 @@
 {
   "dbConfig": {
-    "file" : "voto.sqlite",
+    "file" : "data/voto.sqlite",
     "force" : "true"
   },
   "secrets": {
