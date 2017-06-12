@@ -21,6 +21,11 @@ module.exports = (db) => {
       }).catch(() => {
         res.status(401).end();
       });
+    },
+    setHeaders: (req,res,next) => {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Auth");
+      next();
     }
   };
 };

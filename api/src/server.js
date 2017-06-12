@@ -22,6 +22,8 @@ if(env !== "test") {
 }
 
 server.use(bodyParser.json());
+
+server.use(middleware.setHeaders);
 server.use(routes);
 
 // if this is set, the ip property of a request is the left-most entry in the X-Forwarded-For header, 
