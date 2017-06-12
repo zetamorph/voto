@@ -1,4 +1,6 @@
 node_modules
 api/data
 *.sqlite
+voto.sqlite
+vote_test.sqlite
 npm-debug.log

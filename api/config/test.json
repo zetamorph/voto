@@ -2,9 +2,5 @@
   "dbConfig": {
     "file" : "data/voto_test.sqlite",
     "force" : "true"
-  },
-  "secrets": {
-    "userSecret": "userSecrets",
-    "jwtSecret": "jwtSecrets"
   }
 }
