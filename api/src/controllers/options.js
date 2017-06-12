@@ -3,6 +3,9 @@ const _ = require("lodash");
 
 module.exports = {
   postSingleOption(req,res) {
+    if(_.isEmpty(req.body) || req.body.title === "") {
+      return res.status(400).json({err: "Bad Request" });
+    }
     const pollId = parseInt(req.params.pollId, 10);
     db.poll.findById(pollId)
     .then((pollInstance) => {
@@ -18,11 +21,10 @@ module.exports = {
       return req.option.reload();
     })
     .then((option) => {
-      
       res.status(201).json(option);
     })
-    .catch((err) => {
-      res.status(500).json(err);
+    .catch(() => {
+      res.status(500).json({ err: "Internal Server Error" });
     });
   }
 }
