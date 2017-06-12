@@ -19,7 +19,7 @@ describe("Options", () => {
           expect(res).to.have.status(201);
           expect(res).to.be.json;
           expect(res.body).to.be.an("object");
-          expect(res.body).to.have.property("title");
+          expect(res.body).to.include({ title: "miaumiaumiaumiau" });
         done();
       });
     });
