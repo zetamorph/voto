@@ -10,6 +10,7 @@ const path = require('path');
 const pollRoutes = require("./routes/polls");
 const optionRoutes = require("./routes/options");
 const voteRoutes = require("./routes/votes");
+const userRoutes = require("./routes/users");
 const seed = require("./db/seed");
 const Sequelize = require("sequelize");
 const sqlite = require ("sqlite3");
@@ -25,6 +26,7 @@ if(env !== "test") {
 
 server.use(bodyParser.json());
 server.use(pollRoutes, optionRoutes, voteRoutes);
+server.use("/users", userRoutes);
 
 // if this is set, the ip property of a request is the left-most entry in the X-Forwarded-For header, 
 // so setting this is necessary for getting a user`s ip when the server is running behind a reverse proxy
