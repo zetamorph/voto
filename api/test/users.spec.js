@@ -82,11 +82,10 @@ describe("Users", () => {
     });
   });
 
-/*
-
   describe("DELETE Users", () => {
     
     let token;
+    let userId;
 
     before("create a new user to delete", (done) => {
       
@@ -102,6 +101,7 @@ describe("Users", () => {
         });
       })
       .then((userInstance) => {
+        userId = userInstance.id;
         return db.token.create({
           token: userInstance.generateToken("authentication")
         });
@@ -115,23 +115,18 @@ describe("Users", () => {
       });
     });
     
-    it("deletes a logged in user", (done) => {
-      console.log(token);
+    it("it deletes a logged in user", (done) => {
+      console.log(token, userId);
       chai.request("localhost:8000")
-        .delete("/users")
+        .delete("/users/" + userId)
         .set("Content-Type", "application/json")
         .set("Auth", token)
         .end((err,res) => {
             expect(res).to.have.status(204);
-            expect(res).to.be.json;
-            expect(res.body).to.be.an("object");
-            expect(res.body).to.be.empty;
           done();
         });
-    })
+    });
     
   });
-
-  */
 
 });

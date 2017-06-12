@@ -5,7 +5,7 @@
   "repository": "https://github.com/zetamorph/voto.git",
   "main": "src/server.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test mocha --timeout 5000",
+    "test": "cross-env NODE_ENV=test mocha",
     "start": "cross-env NODE_ENV=dev nodemon src/server.js"
   },
   "author": "",

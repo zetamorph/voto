@@ -44,6 +44,16 @@ module.exports = {
     .catch((err) => {
       res.status(500).end();
     });
+  },
+
+  deleteUser(req,res) {
+    req.user.destroy()
+    .then(() => {
+      res.status(204).end();
+    })
+    .catch((err) => {
+      res.status(500).end();
+    });
   }
 }
    
