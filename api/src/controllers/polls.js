@@ -21,6 +21,7 @@ module.exports = {
   getSinglePoll(req,res) {
     const pollId = parseInt(req.params.pollId, 10);
     let resObj;
+
     db.poll.findOne({
       where: { id: pollId },
       attributes: ["id", "title"],
@@ -41,10 +42,8 @@ module.exports = {
     })
     .then((results) => {
       resObj.options = [];
-      resObj.votes = [];
       results[0].forEach((el, index, arr) => {
-        resObj.options[index] = el.title;
-        resObj.votes[index] = el.votes;
+        resObj.options.push({ id: el.optionId, title: el.title, votes: el.votes });
       });
       res.status(200).json(resObj);
     })
@@ -64,6 +63,7 @@ module.exports = {
   deletePoll(req,res) {
     
     const pollId = req.params.pollId;
+
     db.poll.findById(pollId)
     .then((poll) => {
       if(req.user.id !== poll.dataValues.userId) {

@@ -31,7 +31,8 @@ describe("Polls", (done) => {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
           expect(res.body).to.be.an("object");
-          expect(res.body).to.have.keys("id", "title", "user", "options", "votes");
+          expect(res.body).to.have.keys("id", "title", "user", "options");
+          expect(res.body.options[0]).to.have.keys("id", "title", "votes");
         done();
       });
     });

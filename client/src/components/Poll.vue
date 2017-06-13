@@ -10,7 +10,8 @@ div
       .container.has-text-centered
         h1.title.is-1 {{ poll.title }}
         h2.subtitle {{ poll.description }}
-        h3.subtitle by {{poll.user.username}}
+        h3.subtitle(v-if="userOwnsPoll") by you
+        h3.subtitle(v-else="userOwnsPoll") by {{poll.user.username}}
   section.section 
     .columns
       .column.is-1
@@ -24,11 +25,11 @@ div
           .notification.box(v-for="option, key in options")
             .columns
               .column.has-text-centered
-                span {{option}}
+                span {{option.title}}
               .column.has-text-centered
-                span {{votes[key]}}
+                span {{option.votes}}
               .column(v-if="!userHasVoted && userLoggedIn")
-                button.button(@click="voteOnOption(++key)") Vote
+                button.button(@click="voteOnOption(option.id)") Vote
         section(v-if="!userHasVoted && userLoggedIn")
           .notification.box.has-text-centered
             h4.title Or add a new option
@@ -39,8 +40,6 @@ div
               p.control
                 button.button.is-primary(type="submit") Vote!
       .column.is-1
-
-         
 
 </template>
 
@@ -56,14 +55,13 @@ export default {
         id: "",
         title: "",
         description: "",
-        userId: "",
         createdAt: "",
         user: {
+          id: "",
           username: "",
         },
       },
       options: [],
-      votes: [],
       userHasVoted: false,
       chartOptions: {
         legend: {
@@ -94,6 +92,7 @@ export default {
       .then((poll) => {
         self.poll.id = poll.data.id;
         self.poll.title = poll.data.title;
+        self.poll.user.id = poll.data.user.id;
         self.poll.user.username = poll.data.user.username;
         self.options = poll.data.options;
         self.votes = poll.data.votes;
@@ -102,32 +101,32 @@ export default {
         throw new Error(err);
       });
     },
-
     voteOnOption(optionId) {
       const self = this;
-      axios.post(`http://localhost:8000/options/${optionId}/votes`).then(() => {
+      axios.post(`http://localhost:8000/options/${optionId}/votes`)
+      .then(() => {
         self.getPollData();
         self.userHasVoted = true;
+      })
+      .catch(() => {
+        this.$store.commit("setError", "You have already voted");
       });
     },
-
-    // When a user adds an option, a vote on this option is automatically cast
-
     addOption() {
       const self = this;
       const newOption = this.$refs.optionInput.value;
-      axios.post(`/api/polls/${this.poll.id}/options`, { title: newOption }).then(() => {
-        axios.post(`/api/polls/${self.poll.id}/votes`);
-      }).then(() => {
+      axios.post(`http://localhost:8000/polls/${this.poll.id}/options`, { title: newOption })
+      .then((response) => {
+        axios.post(`http://localhost:8000/options/${response.data.id}/votes`);
+      })
+      .then(() => {
         self.getPollData();
         self.userHasVoted = true;
       });
     },
-
     makeRGBAString() {
       return `rgba(${this.makeRandomColor()},${this.makeRandomColor()},${this.makeRandomColor()},1`;
     },
-
     makeRandomColor() {
       return Math.floor(Math.random() * 255);
     },
@@ -144,8 +143,8 @@ export default {
       };
       let i;
       for (i = 0; i < this.options.length; i += 1) {
-        dataObj.labels[i] = this.options[i];
-        dataObj.datasets[0].data[i] = this.votes[i];
+        dataObj.labels[i] = this.options[i].title;
+        dataObj.datasets[0].data[i] = this.options[i].votes;
         const colorString = this.makeRGBAString();
         dataObj.datasets[0].backgroundColor[i] = colorString;
         dataObj.datasets[0].borderColor[i] = "rgba(255,255,255,0)";
@@ -169,7 +168,7 @@ export default {
 </script>
 
 <style>
-  ul: {
+  ul {
     list-style:none;
   }
 

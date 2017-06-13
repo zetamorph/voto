@@ -8,7 +8,6 @@ module.exports = {
       optionId: req.params.optionId
     };
     let pollId;
-    let hasVoted = false;
 
     db.option.findById(voteData.optionId)
     .then((option) => {
@@ -34,15 +33,18 @@ module.exports = {
     .then((vote) => {
       if(vote) {
         res.status(403).json({ err: "User already voted on this poll" });
+        throw new Error("voted");
       }
-        return db.vote.create(voteData);
-      })
-      .then((vote) => {
-        return vote.reload();
-      }).then((vote) => {
-        res.status(201).json(_.pick(vote, "userId", "optionId"));
-      }).catch((err) => {
+      return db.vote.create(voteData);
+    })
+    .then((vote) => {
+      return vote.reload();
+    }).then((vote) => {
+      res.status(201).json(_.pick(vote, "userId", "optionId"));
+    }).catch((err) => {
+      if(!err.Error === "voted") {
         res.status(500).json({ err: "Internal Server Error" });
-      });
-    }
+      }
+    });
+  }
 }
