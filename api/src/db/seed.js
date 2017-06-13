@@ -7,7 +7,9 @@ module.exports = function (db, done) {
     {username: "hanspeter", email: "hanspeter@hanspeter.de", password: "hanspeter"},
     {username: "claudius", email: "claudius@claudius.de", password: "claudius"},
     {username: "friedrich", email: "friedrich@friedrich.de", password: "friedrich"},
-    {username: "gustav", email: "gustav@gustav.de", password: "gustav"}
+    {username: "gustav", email: "gustav@gustav.de", password: "gustav"},
+    {username: "gustavo", email: "gustavo@gustavo.de", password: "gustavo"},
+    {username: "gustavio", email: "gustavio@gustavio.de", password: "gustavio"}
   ])
   .then(() => {
     return db.poll.bulkCreate([
@@ -19,8 +21,8 @@ module.exports = function (db, done) {
       {title: "What is your favorite human?", userId: 6},
       {title: "What is your favorite snake?", userId: 7},
       {title: "What is your favorite spider?", userId: 8},
-      {title: "What is your favorite game?", userId: 4},
-      {title: "What is your favorite fruit?", userId: 2}
+      {title: "What is your favorite game?", userId: 9},
+      {title: "What is your favorite fruit?", userId: 10}
     ]);
   })
   .then(() => {
@@ -39,24 +41,51 @@ module.exports = function (db, done) {
       {title: "becks", pollId: 5},
       {title: "radeberger", pollId: 5},
 
-      {title: "donald trump", pollId: 6},
+      {title: "friedrich", pollId: 6},
+      {title: "klaus", pollId: 6},
 
-      {title: "black widow", pollId: 7},
-      {title: "Brown Recluse", pollId: 7},
+      {title: "black widow", pollId: 8},
+      {title: "Brown Recluse", pollId: 8},
+
+      {title: "chess", pollId: 9},
+      {title: "tennis", pollId: 9},
+
+      {title: "apple", pollId: 10},
+      {title: "cherry", pollId: 10},
     ]);
   })
   .then(() => {
     return db.vote.bulkCreate([
       {userId: 1, optionId: 1},
-      {userId: 2, optionId: 1},
-      {userId: 3, optionId: 5},
-      {userId: 4, optionId: 8},
-      {userId: 5, optionId: 9},
-      {userId: 5, optionId: 1},
-      {userId: 2, optionId: 10},
-      {userId: 3, optionId: 1},
-      {userId: 4, optionId: 3},
-      {userId: 2, optionId: 5},
+      {userId: 2, optionId: 2},
+      {userId: 3, optionId: 3},
+      {userId: 4, optionId: 4},
+      {userId: 5, optionId: 5},
+      {userId: 6, optionId: 6},
+      {userId: 7, optionId: 7},
+      {userId: 8, optionId: 8},
+      {userId: 9, optionId: 9},
+      {userId: 10, optionId: 10},
+      {userId: 1, optionId: 10},
+      {userId: 2, optionId: 9},
+      {userId: 3, optionId: 8},
+      {userId: 4, optionId: 7},
+      {userId: 5, optionId: 6},
+      {userId: 6, optionId: 5},
+      {userId: 7, optionId: 4},
+      {userId: 8, optionId: 3},
+      {userId: 9, optionId: 2},
+      {userId: 10, optionId: 1},
+      {userId: 1, optionId: 11},
+      {userId: 2, optionId: 12},
+      {userId: 3, optionId: 13},
+      {userId: 4, optionId: 14},
+      {userId: 5, optionId: 15},
+      {userId: 6, optionId: 16},
+      {userId: 7, optionId: 17},
+      {userId: 8, optionId: 18},
+      {userId: 9, optionId: 12},
+      {userId: 10, optionId: 15},
     ]);
   })
   .then(() => {

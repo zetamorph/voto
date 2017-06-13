@@ -11,7 +11,7 @@ describe("Votes", () => {
 
     it("it creates a single new vote for an option of a poll", (done) => {
       chai.request("localhost:8000")
-        .post("/options/10/votes")
+        .post("/options/15/votes")
         .set("Content-Type", "application/json")
         .set("Auth", helper.token)
         .end((err,res) => {

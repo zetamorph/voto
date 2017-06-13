@@ -20,7 +20,7 @@ describe("Users", () => {
             expect(res).to.be.json;
             expect(res).to.have.header("Auth");
             expect(res.body).to.be.an("object");
-            expect(res.body).to.have.keys("id", "email", "username");
+            expect(res.body).to.have.keys("id", "email", "username", "pollsVotedOn");
           done();
         });
     });
