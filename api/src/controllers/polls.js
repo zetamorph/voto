@@ -53,7 +53,10 @@ module.exports = {
   },
 
   postPoll(req,res) {
-    db.poll.create(req.body)
+    db.poll.create({
+      title: req.body.title,
+      userId: req.user.id,
+    })
     .then((createdPoll) => {
       createdPoll = _.pick(createdPoll, "id", "title");
       res.status(201).json(createdPoll);
