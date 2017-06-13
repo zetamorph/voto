@@ -1,17 +1,18 @@
 <template lang="pug">
 
-  div.box.poll-list(v-if="polls")
+.box
+  h4.title.has-text-centered
+    strong All Polls
+  div.poll-list(v-if="polls")
     router-link.box.has-text-centered.poll(:to="{name: 'poll', params: { id : poll.id }}", v-for="poll in polls", :key="poll.id") 
-      .columns
-        .column.is-two-thirds
-          h4.title.is-bold.is-primary {{ poll.title }} 
-        .column
-          h6.subtitle by {{poll.user.username}}
+      poll-list-item(:poll-id="poll.id")
+      
 </template>
 
 <script>
 
 import axios from "axios";
+import pollListItem from "./Poll_List_Item";
 
 export default {
   data() {
@@ -35,6 +36,9 @@ export default {
         this.polls = pollsData;
       });
     },
+  },
+  components: {
+    pollListItem,
   },
 };
 

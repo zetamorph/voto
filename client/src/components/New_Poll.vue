@@ -69,7 +69,6 @@ export default {
         title: this.pollData.title,
       })
       .then((response) => {
-        console.log(response.data);
         self.pollData.newId = response.data.id;
       });
     },

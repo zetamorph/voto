@@ -3,11 +3,8 @@ div
   nav.nav.box
     .nav-left
       router-link.nav-item(:to="{ path: '/' }")
-        h1.title.is-1
-          span#logo-V V
-          span#logo-O O
-          span#logo-T T
-          span#logo-O2 O
+        h1.logo.title.is-1 
+          strong Voto
     .nav-center
       router-link.nav-item.is-tab(:to="{path: '/', query: {sort: 'latest'}}") Latest
       router-link.nav-item.is-tab(:to="{path: '/'}") Popular
@@ -19,10 +16,9 @@ div
     .nav-right(v-else)
       router-link.nav-item.is-tab(:to="{path: '/signup'}") Sign Up
       router-link.nav-item.is-tab(:to="{path: '/login'}") Log In
-      
-  .notification.box.is-danger.has-text-centered(v-if="error")
-    h4.title {{error}} 
 
+  .notification.box.is-danger.has-text-centered(v-if="error")
+      h4.title {{error}} 
   transition(name="fade")
     router-view
   
@@ -31,6 +27,7 @@ div
 <script>
 
 import axios from "axios";
+
 
 export default {
   data() {
@@ -58,7 +55,6 @@ export default {
       });
     },
   },
-
 };
 
 </script>
@@ -75,16 +71,8 @@ export default {
   opacity: 0;
 }
 
-#logo-V {
-  color: #4D01CC;
-}
-
-#logo-T {
-  color: #FF8A00;
-}
-
-#logo-O, #logo-O2 {
-  color: #51FF74;
+.logo {
+  font-family: "Pacifico";
 }
 
 </style>

@@ -118,8 +118,7 @@ export default {
       .then((response) => {
         axios.post(`http://localhost:8000/options/${response.data.id}/votes`);
       })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
         self.getPollData();
         this.$store.commit("newVote", {
           pollId: parseInt(this.poll.id, 5),
