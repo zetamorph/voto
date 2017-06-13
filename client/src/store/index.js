@@ -11,6 +11,7 @@ export default new Vuex.Store({
     user: {
       id: "",
       token: "",
+      pollsVotedOn: [],
     },
     error: "",
   },
@@ -18,10 +19,14 @@ export default new Vuex.Store({
     setUser(state, userData) {
       state.user.token = userData.token;
       state.user.id = userData.id;
+      state.user.pollsVotedOn = userData.pollsVotedOn;
     },
     deleteUser(state) {
       state.user.token = "";
       state.user.id = "";
+    },
+    newVote(state, payload) {
+      state.user.pollsVotedOn.push(payload.pollId);
     },
     setError(state, error) {
       state.error = error;

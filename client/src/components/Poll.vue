@@ -54,15 +54,12 @@ export default {
       poll: {
         id: "",
         title: "",
-        description: "",
-        createdAt: "",
         user: {
           id: "",
           username: "",
         },
       },
       options: [],
-      userHasVoted: false,
       chartOptions: {
         legend: {
           display: true,
@@ -106,7 +103,9 @@ export default {
       axios.post(`http://localhost:8000/options/${optionId}/votes`)
       .then(() => {
         self.getPollData();
-        self.userHasVoted = true;
+        this.$store.commit("newVote", {
+          pollId: parseInt(this.poll.id, 5),
+        });
       })
       .catch(() => {
         this.$store.commit("setError", "You have already voted");
@@ -119,9 +118,12 @@ export default {
       .then((response) => {
         axios.post(`http://localhost:8000/options/${response.data.id}/votes`);
       })
-      .then(() => {
+      .then((res) => {
+        console.log(res);
         self.getPollData();
-        self.userHasVoted = true;
+        this.$store.commit("newVote", {
+          pollId: parseInt(this.poll.id, 5),
+        });
       });
     },
     makeRGBAString() {
@@ -154,6 +156,12 @@ export default {
     userLoggedIn() {
       if (!this.$store.state.user.id) return false;
       return true;
+    },
+    userHasVoted() {
+      if (this.$store.state.user.pollsVotedOn.includes(parseInt(this.poll.id, 5))) {
+        return true;
+      }
+      return false;
     },
     userOwnsPoll() {
       if (!this.$store.state.user.id) return false;

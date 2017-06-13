@@ -38,6 +38,7 @@
           this.$store.commit("setUser", {
             id: response.data.id,
             token: response.headers.auth,
+            pollsVotedOn: response.data.pollsVotedOn,
           });
           this.$router.push("/");
         }, (err) => {

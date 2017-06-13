@@ -65,16 +65,17 @@ export default {
   methods: {
     createPoll() {
       const self = this;
-      axios.post("api/polls", {
+      axios.post("http://localhost:8000/polls", {
         title: this.pollData.title,
       })
       .then((response) => {
+        console.log(response.data);
         self.pollData.newId = response.data.id;
       });
     },
     addOption() {
       const self = this;
-      axios.post(`api/polls/${this.pollData.newId}/options`, { title: this.newOption })
+      axios.post(`http://localhost:8000/polls/${this.pollData.newId}/options`, { title: this.newOption })
       .then((response) => {
         self.options.push(response.data.title);
         self.newOption = "";
